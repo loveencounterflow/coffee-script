@@ -14,7 +14,7 @@ rpr                       = njs_util.inspect
 ### TAINT not a test suite just yet, just an example ###
 
 #-----------------------------------------------------------------------------------------------------------
-walk_fibonacci = ->>
+walk_fibonacci = ->*
   a = 1
   b = 1
   loop
@@ -41,10 +41,10 @@ for n in walk_fibonacci()
   log n
 
 
-coffee = require '../../coffy-script'
-log coffee.compile """
+coffy = require '../../coffy-script'
+log coffy.compile """
   outer = ->
-    inner = =>>
+    inner = =>*
       yield 'helo world'
   """
 
