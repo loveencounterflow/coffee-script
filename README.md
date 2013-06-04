@@ -5,10 +5,13 @@
 
 ## ...is CoffeeScript with Yield❗
 
-As of JavaScript 1.7 (as implemented in Firefox) and EcmaScript 6 (ES6, dubbed 'Harmony'), we have a
+As of
+[JavaScript 1.7 (as implemented in Firefox)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators)
+and
+[EcmaScript 6 (ES6, dubbed 'Harmony')](http://wiki.ecmascript.org/doku.php?id=harmony:generators), we have a
 Python-like `yield` keyword in JavaScript. Yeah!
 
-That's really cool cause, y'know, `yield` brings generators, and generators are cool for—you
+That's really cool–'cause, y'know, `yield` brings generators, and generators are cool for—you
 guessed it—asynchronous programming.
 
 Unfortunately, it's not looking as if [CoffeeScript](https://github.com/jashkenas/coffee-script) in its
@@ -25,6 +28,10 @@ that to `--harmony-generators`.**
 
 CoffyScript is as yet experimental–a quick hack of the CoffeeScript grammar. You should probably not use
 it to control a space rocket.
+
+## Syntax
+
+ES
 
 ## Examples
 

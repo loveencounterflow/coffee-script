@@ -25,6 +25,10 @@ walk_fibonacci = ->>
 
 #-----------------------------------------------------------------------------------------------------------
 g = walk_fibonacci()
+
+log ( require 'coffeenode-types' ).type_of g
+log Object::toString.call g
+
 log g.next()
 log g.next()
 log g.next()
@@ -33,9 +37,8 @@ log g.next()
 log g.next()
 log g.next()
 
-log rpr walk_fibonacci()
-for i of walk_fibonacci()
-  log i
+for n in walk_fibonacci()
+  log n
 
 
 coffee = require '../../coffy-script'
