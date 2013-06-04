@@ -1,6 +1,6 @@
 {
   "name":         "coffee-script",
-  "description":  "Unfancy JavaScript",
+  "description":  "CoffeeScript with a Y.",
   "keywords":     ["javascript", "language", "coffeescript", "compiler"],
   "author":       "Jeremy Ashkenas",
   "version":      "1.6.3",
