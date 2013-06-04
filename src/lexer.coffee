@@ -732,7 +732,7 @@ RESERVED = [
   'case', 'default', 'function', 'var', 'void', 'with', 'const', 'let', 'enum'
   'export', 'import', 'native', '__hasProp', '__extends', '__slice', '__bind'
   '__indexOf', 'implements', 'interface', 'package', 'private', 'protected'
-  'public', 'static', 'yield'
+  'public', 'static'
 ]
 
 STRICT_PROSCRIBED = ['arguments', 'eval']
@@ -763,7 +763,7 @@ NUMBER     = ///
 HEREDOC    = /// ^ ("""|''') ([\s\S]*?) (?:\n[^\n\S]*)? \1 ///
 
 OPERATOR   = /// ^ (
-  ?: [-=]>             # function
+  ?: [-=]>>?           # function
    | [-+*/%<>&|^!?=]=  # compound assign / compare
    | >>>=?             # zero-fill right shift
    | ([-+:])\1         # doubles
@@ -776,7 +776,7 @@ WHITESPACE = /^[^\n\S]+/
 
 COMMENT    = /^###([^#][\s\S]*?)(?:###[^\n\S]*|(?:###)$)|^(?:\s*#(?!##[^#]).*)+/
 
-CODE       = /^[-=]>/
+CODE       = /^[-=]>>?/
 
 MULTI_DENT = /^(?:\n[^\n\S]*)+/
 

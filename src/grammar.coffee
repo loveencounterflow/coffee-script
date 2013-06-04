@@ -194,7 +194,9 @@ grammar =
   # functions, and `=>` is for functions bound to the current value of *this*.
   FuncGlyph: [
     o '->',                                     -> 'func'
+    o '->>',                                    -> 'generatorfunc'
     o '=>',                                     -> 'boundfunc'
+    o '=>>',                                    -> 'boundgeneratorfunc'
   ]
 
   # An optional, trailing comma.
