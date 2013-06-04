@@ -17,6 +17,37 @@ which is a shame since it has already landed in NodeJS—which relies on V8, and
 conservative with features (which is understandable when your aim is to build the fastest *and* the most compatible
 JavaScript engine).
 
-**Note You will need NodeJS version ≥ 0.11.2 to use `yield`. The `bin/coffy` executable sets the V8
+## Implementation Status
+
+**Note: You will need NodeJS version ≥ 0.11.2 to use `yield`. The `bin/coffy` executable sets the V8
 `--harmony` command line flag so you don't have to. If this should break things, consider changing
 that to `--harmony-generators`.**
+
+CoffyScript is as yet experimental–a quick hack of the CoffeeScript grammar. You should probably not use
+it to control a space rocket.
+
+## Examples
+
+
+    log = console.log
+
+    walk_fibonacci = ->>
+      a = 1
+      b = 1
+      loop
+        yield c = a + b
+        a = b
+        b = c
+
+    g = walk_fibonacci()
+    log g.next()
+    log g.next()
+    log g.next()
+    log g.next()
+    log g.next()
+    log g.next()
+    log g.next()
+
+
+
+
