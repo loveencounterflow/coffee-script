@@ -29,9 +29,12 @@ that to `--harmony-generators`.**
 CoffyScript is as yet experimental–a quick hack of the CoffeeScript grammar. You should probably not use
 it to control a space rocket.
 
+*Currently, the focus is on getting generators right in NodeJS; other targets–most importantly Firefox
+(which does not fully comply with ES6 generator specs)–are **not** supported.*
+
 ## Syntax
 
-ES
+ES6 specifies that
 
 ## Examples
 
