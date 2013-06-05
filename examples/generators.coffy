@@ -43,8 +43,9 @@ walk_abc = ->*
 walk = ( generator ) ->
   { value
     done   }  = generator.next()
+  this_value  = value
   next_value  = value
-  current_idx = 1
+  current_idx = 0
   return Proxy.create
     # get:      ( proxy, name      ) ->
     # set:      ( proxy, name, val ) ->
@@ -54,19 +55,22 @@ walk = ( generator ) ->
     # keys:     () ->
     get: ( receiver, idx ) ->
       if idx is 'length'
-        log '***', current_idx
-        return current_idx if done
-        return current_idx + 1
+        # log '***', current_idx
+        return 0 if done
+        return Infinity
+      idx = parseInt idx, 10
       ### TAINT do proper value checking ###
-      throw new Error "expected integer index, got #{rpr idx}" unless idx > -1
+      throw new Error "expected integer index, got #{rpr idx}" unless ( isFinite idx ) and idx > -1
       throw new Error "unable to go back to idx #{rpr idx}" unless idx + 1 >= current_idx
-      this_value  = next_value
-      while current_idx < idx
+      log 'next_value', next_value, current_idx, idx
+      # this_value  = next_value
+      while current_idx < idx + 1
+        this_value    = next_value
         { value
           done   }    = generator.next()
         next_value    = value
         current_idx  += 1
-      return next_value
+      return this_value if current_idx is idx
 
 
 `
