@@ -78,15 +78,20 @@ results you will need?
 
 ## Implementation Status
 
-**Note: You will need NodeJS version ≥ 0.11.2 to use `yield`. The `bin/coffy` executable sets the V8
+**Note: You will need NodeJS version ≥ 0.11.2 to use `yield`. The `bin/coffee` executable sets the V8
 `--harmony` command line flag so you don't have to. If this should break things, consider changing
-that to `--harmony-generators`.**
+that to `--harmony-generators`.** (Note: as an experimental feature, `--harmony_proxies` is also set,
+so you do experiments how ES6 Proxies can help dealing with iterating over generated values).
 
 CoffyScript is as yet experimental–a quick hack of the CoffeeScript grammar. You should probably not use
 it to control a space rocket.
 
 *Currently, the focus is on getting generators right in NodeJS; other targets–most importantly Firefox
 (which does not fully comply with ES6 generator specs)–are **not** supported.*
+
+ES6 also specifies `yield*`, which corresponds to Python's `yield from` construct. However, if you try to
+use that in NodeJS 0.11.2, you're bound to witness the Longest. Stacktrace. Ever., so don't use it just
+yet.
 
 ## Syntax
 

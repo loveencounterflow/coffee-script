@@ -4,8 +4,8 @@
 ############################################################################################################
 # ERROR                     = require 'coffeenode-stacktrace'
 njs_util                  = require 'util'
-njs_path                  = require 'path'
-njs_fs                    = require 'fs'
+# njs_path                  = require 'path'
+# njs_fs                    = require 'fs'
 #...........................................................................................................
 log                       = console.log
 rpr                       = njs_util.inspect
@@ -15,38 +15,188 @@ rpr                       = njs_util.inspect
 
 #-----------------------------------------------------------------------------------------------------------
 walk_fibonacci = ->*
-  a = 1
-  b = 1
+  a = null
+  b = null
+  reset = ->
+    a = 1
+    b = 1
+  reset()
   loop
-    yield c = a + b
-    a = b
-    b = c
-  return 42
+    try
+      c = a + b
+      return if c > 100
+      x = yield c
+      # log '###', x
+      a = b
+      b = c
+    catch error
+      throw error unless error is 'reset'
+      log '### RESET ###'
+      reset()
+
+walk_abc = ->*
+  yield 'a'
+  yield 'b'
+  yield 'c'
+  return
+
+# walk = ( generator ) ->
+#   R = generator.next()
+
+# get_data = ( handler ) ->
+#   handler null, 42
+#   return null
+
+# f = ->*
+#   get_data -> ( error, data ) ->
+#     throw error if error?
+#     yield data
+
+# g = f()
+# log g.next()
+
+
 
 #-----------------------------------------------------------------------------------------------------------
-g = walk_fibonacci()
 
-log ( require 'coffeenode-types' ).type_of g
-log Object::toString.call g
+# `
+# for ( var x of walk_fibonacci() ) {
+#   log( x ); }
+# `
 
-log g.next()
-log g.next()
-log g.next()
-log g.next()
-log g.next()
-log g.next()
-log g.next()
+# g = walk_fibonacci()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log g.next()
+# log x = g.next()[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.throw 'reset' )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
+# log ( g.send x * 2 )[ 'value' ]
 
-for n in walk_fibonacci()
-  log n
+walk = ( generator ) ->
+  { value
+    done   }  = generator.next()
+  next_value  = value
+  current_idx = 1
+  return Proxy.create
+    # get:      ( proxy, name      ) ->
+    # set:      ( proxy, name, val ) ->
+    # has:      ( name             ) ->
+    # delete:   ( name             ) ->
+    # iterate:  () ->
+    # keys:     () ->
+    get: ( receiver, idx ) ->
+      if idx is 'length'
+        log '***', current_idx
+        return current_idx if done
+        return current_idx + 1
+      ### TAINT do proper value checking ###
+      throw new Error "expected integer index, got #{rpr idx}" unless idx > -1
+      throw new Error "unable to go back to idx #{rpr idx}" unless idx + 1 >= current_idx
+      this_value  = next_value
+      while current_idx < idx
+        { value
+          done   }    = generator.next()
+        next_value    = value
+        current_idx  += 1
+      return next_value
 
 
-coffy = require '../../coffy-script'
-log coffy.compile """
-  outer = ->
-    inner = =>*
-      yield 'helo world'
-  """
+
+# for n of walk walk_fibonacci()
+#   log n
+
+# for n in walk walk_fibonacci()
+#   log n
+
+`
+_ref = walk(walk_abc());
+var reflen;
+for (_i = 0; _i < ( reflen = _ref.length ); _i++) {
+  n = _ref[_i];
+  log( _i, reflen, n);
+}
+`
+
+
+
+
+# log f[ 1 ]
+# log f[ 2 ]
+# log f[ 2 ]
+# log f[ 2 ]
+
+# # log ( name for name of f )
+
+# Stack = ->
+#   stack = []
+#   allowed = ["push", "pop", "length"]
+#   return Proxy.create
+#     get: (receiver, name) ->
+#       log '###', name
+#       if allowed.indexOf(name) > -1
+#         if typeof stack[name] is "function"
+#           stack[name].bind stack
+#         else
+#           stack[name]
+#       else
+#         `undefined`
+
+# # mystack = new Stack()
+# # mystack.push "hi"
+# # mystack.push "goodbye"
+# # log mystack.length #1
+# # log mystack[0] #undefined
+# # log mystack.pop() #"goodbye"
+
+
+# getset = ->
+#   target = {}
+#   name = 0
+#   getter = ( P... ) ->
+#     log '+++', P
+#     return 42
+#   #.........................................................................................................
+#   Object.defineProperty target, name,
+#     configurable:  yes
+#     enumerable:    yes
+#     get:           getter
+#     set:           undefined
+#   return target
+
+# # x = getset()
+# # log '...', x[ 0 ]
+
 
 
 
