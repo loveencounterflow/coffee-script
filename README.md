@@ -111,6 +111,12 @@ that it 'doesn't know about yield', which of course is bollocks (provided that y
 version of NodeJS); just remember that when 'yield' occurs in an error message, the asterisk is the first
 thing to check.
 
+## Suspension
+
+[suspend](https://github.com/jmar777/suspend)
+
+have a look at `examples/sudpend.coffy`
+
 ## Asynchronicity & How to Cope with it
 
 `yield` really starts to shine for a lot of use cases with full language support, such as what you get in
@@ -139,9 +145,9 @@ handling asynchronous control flow, it all boils down to these:
 * **Events**. More expressive than callbacks, as you can subscribe to specific event types, rather than waiting
   for a single callback handler to get called.
 
-* **Promises**. An emerging standard (cf. 'Promises/A+'). Harder to get right than callbacks, as witnesses by
-  the sheer number of libraries that *didn't* get it right (mighty jQuery being one of them shows you just
-  how hard they are). Promises may be thought of 'specialized event handlers' of sorts.
+* **Promises**. An emerging standard (cf. 'Promises/A+'). Harder to get right than callbacks, as witnessed by
+  all those attempts that *didn't* get it right (mighty jQuery being one of them—which goes to show just
+  how hard promises are). Promises may be thought of 'specialized event handlers' of sorts.
 
 * **Control Flow Libraries** like Tim Caswell's Step, the famous `async` library, countless others: Interesting; some of them
   quite usable; some are very useful e.g. to limit the number of asynchronous calls you make at any given
@@ -153,8 +159,8 @@ handling asynchronous control flow, it all boils down to these:
   One thing that must be said in favor of asynchronous control flow libraries is that they often provide
   methods to simplify such composite tasks as: fulfill each subtask in parallel, and return a value when
   all have finished; return a value as soon as any subtask has finished; run subtasks in parallel, but
-  limit the number of concurrent asynchronous calls. You should probably not program you own trigonometry
-  functions, and asynchronous chores like these should also probably be put in a library, preferrably a
+  limit the number of concurrent asynchronous calls. You should probably not program your own trigonometry
+  functions, and asynchronous chores like these should also probably be managed by a library, preferrably a
   well-tested one.
 
 * **Transpiling languages** with asynchronous constructs, such as
@@ -166,9 +172,8 @@ handling asynchronous control flow, it all boils down to these:
   changing the very syntax, introduce new or improved operators, reordering code stuff like that.
 
   While i find transpiling languages very exciting mainly because they allow you to write code for an
-  existing, popular VM with well-known properties and without being bound to (all of) the idiosynchrasies
-  of that VM, be it syntax or annoying language shortcomings (say, the mere existence of JS's `==`,
-  rightfully eliminated by CoffeeScript and others) there are certain limits to what is desirable or even
+  existing, popular VM with well-known properties and without being bound to (all of) the idiosyncrasies
+  of that VM, there are certain limits to what is desirable or even
   acceptable as far as the generated code goes.
 
   PogoScript, as a case in point, allows you to decorate
