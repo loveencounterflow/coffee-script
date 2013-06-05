@@ -188,7 +188,7 @@ handling asynchronous control flow, it all boils down to these:
   nested `if` / `else` and `try` / `catch` clauses. Debugging a chess programm written in Brainfuck is
   probably easier than to digest *this* heap of spaghetti. Nice try, but thank you. And thank you Jeremy
   and everyone for not allowing this to happen in CS. (Disclaimer: not one here to disparage PogoScript or
-  its authors in whichever ways—making this work is an achievement to be sure. I'm just saying this hammer
+  its authors in whichever ways—making this trick work is an achievement to be sure. I'm just saying this hammer
   is probably not what you wanted to fix your screw.)
 
   Turns out this 'folded' code of some languages is pretty similar to what you can get with `yield`.
