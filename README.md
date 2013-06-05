@@ -133,26 +133,68 @@ the choices (and, given the sheer number of choices and their varying degrees of
 standardization, i would say that callbacks really are a good common denominator). When it comes to
 handling asynchronous control flow, it all boils down to these:
 
-* Callbacks. Simple, well standardized. But: Pyramid of Doom.
+* Callbacks. Simple, well standardized. CoffeeScript's function syntax makes callbacks a lot more viable for
+  many people, being both easier to write and to read, it's much less of a burden to use functions all the
+  the time. But, of course: the Pyramid of Doom doesn't go away just because functions are easier to type.
 
-* Events. More expressive than callbacks.
+* Events. More expressive than callbacks, as you can subscribe to specific event types, rather than waiting
+  for a single callback handler to get called.
 
 * Promises. An emerging standard (cf. 'Promises/A+'). Harder to get right than callbacks, as witnesses by
   the sheer number of libraries that *didn't* get it right (mighty jQuery being one of them–shows you just
-  how hard they are).
+  how hard they are). Promises may be thought of 'specialized event handlers' of sorts.
 
 * Libraries like Tim Caswell's Step, the famous `async` library, countless others: Interesting; some of them
   quite usable; some are very useful e.g. to limit the number of asynchronous calls you make at any given
   point in time, or to wait on the completion of a variable number of calls you have to make. Sadly, this
   field represents the opposite of standardization, each library being an entire small API world in its
-  own.
+  own. Some libraries require you to wrap your functions into library calls, or build objects that derive
+  from library objects, something that i don't like.
 
-* Proprietary language extensions, like e.g. Iced Coffee Script. Interesting, but unless ideas tested by the
+  One thing that must be said in favor of asynchronous control flow libraries is that they often provide
+  methods to simplify such composite tasks as: fulfill each subtask in parallel, and return a value when
+  all have finished; return a value as soon as any subtask has finished; run subtasks in parallel, but
+  limit the number of concurrent asynchronous calls. You should probably not program you own trigonometry
+  functions, and asynchronous chores like these should also probably be put in a library, preferrably a
+  well-tested one.
 
-* Transpiling languages with asynchronous constructs. GorillaScript, PogoScript,
-  [ToffeeScript](https://github.com/jiangmiao/toffee-script)
+* Transpiling languages with asynchronous constructs, such as
+  [GorillaScript](https://github.com/ckknight/gorillascript),
+  [PogoScript](https://github.com/featurist/pogoscript),
+  [ToffeeScript](https://github.com/jiangmiao/toffee-script). Transpiling
+  languages occupy a middle ground between mere libraries and native language extensions. The justification
+  for transpiling languages is that there are things you just can't push into a library—for example,
+  changing the very syntax, introduce new or improved operators, reordering code–stuff like that.
 
+  While i find transpiling languages very exciting–mainly because they allow you to write code for an
+  existing, popular VM with well-known properties without being bound to (all of) the idiosynchrasies
+  of that VM, be it syntax or annoying language shortcomings (say, the mere existence of JS's `==`,
+  rightfully eliminated by CoffeeScript and others)–there are certain limits to what is desirable or even
+  acceptable as far as the generated code goes.
 
+  PogoScript, as a case in point, allows you to decorate
+  your asynchronous function call, allowing you to write `x = f! a` as if `f a` replaced by `f! a` was an
+  asynchronous-turned-synchronous function call (i call this 'folded style', the callback part being
+  like 'folded back' into your primary control flow). Of course, within the limits of JavaScript, this isn't
+  possible without reordering code and dealing with callbacks etc. behind the scenes. You do get benefits
+  like being able to catch asynchronous errors inside a (seemingly) run-of-the mill `try` / `catch` clause,
+  but the expensiveness is baffling: a single line, a single 'folded' code will expand to ~25 lines of
+  JavaScript, maybe ok; but: three 'folded' calls within a `try` / `catch` / `finally` clause (6 lines)
+  will *explode* to ~150 lines, forming a pyramid that is up to *ten* stories deep, all riddled with
+  nested `if` / `else` and `try` / `catch` clauses. Debugging a chess programm written in Brainfuck is
+  probably easier than to digest that heap of spaghetti.
+
+* 'Native' language extensions (that modify NodeJS or another VM), e.g. Iced Coffee Script. Interesting
+  and certainly potentially able to provide most powerful solution to the asynchronous conondrum. But:
+  unless ideas tested and proven by such projects enter the mainstream (read: become part of ES), they won't
+  fly (far). Platform fragmentation has and will be one difficult aspect of JavaScript, and more
+  fragmentation won't cut it. When you have the chance to work within the world's best-deployed software
+  platform / VM, you don't want to lock out yourself for thirty pieces of silver and a few saved callbacks
+  (bad enough `yield` needs an unstable version of NodeJS).
+
+* Using another VM altogether—Haskell, Erlang or Go maybe. Ouside of my consideration; but of course, there
+  may be valuable lessons in other VMs, e.g. [exception handling in Go](http://blog.golang.org/error-handling-and-go),
+  which is completely different from what you would (or even could) do in unadultered JavaScript.
 
 
 
