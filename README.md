@@ -191,7 +191,7 @@ handling asynchronous control flow, it all boils down to these:
   its authors in whichever ways—making this trick work is an achievement to be sure. I'm just saying this hammer
   is probably not what you wanted to fix your screw.)
 
-  Turns out this 'folded' code of some languages is pretty similar to what you can get with `yield`.
+  **Turns out the 'folded' calls of some transpiling languages is pretty similar to what you can get with `yield`.**
 
 * **Native Language Extensions** (that modify NodeJS or another VM), e.g. Iced Coffee Script. Interesting
   and certainly potentially able to provide most powerful solution to the asynchronous conondrum. But:
