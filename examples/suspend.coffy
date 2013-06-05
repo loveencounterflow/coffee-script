@@ -3,31 +3,63 @@
 # ERROR                     = require 'coffeenode-stacktrace'
 njs_util                  = require 'util'
 # njs_path                  = require 'path'
-# njs_fs                    = require 'fs'
+njs_fs                    = require 'fs'
 #...........................................................................................................
 log                       = console.log
 rpr                       = njs_util.inspect
-
+suspend                   = require 'suspend'
 
 ### TAINT not a test suite just yet, just an example ###
 
 
+#===========================================================================================================
+# HELPERS
 #-----------------------------------------------------------------------------------------------------------
-myGenerator = ->*
-  console.log "hello"
-  yield sleep 2000
-  # 2 seconds later
-  console.log "world"
+step = ( stepper ) ->
+  ### Like `suspend` (see `https://github.com/jmar777/suspend`), but executing the suspended function
+  immediately. ###
+  R = suspend stepper #, throw: yes
+  #.........................................................................................................
+  return R()
 
 #-----------------------------------------------------------------------------------------------------------
-# create and initiate our iterator
-sleep = (ms) ->
-  setTimeout (->
-    iterator.next()
-  ), ms
+sleep = ( time_s, handler ) ->
+  ### `sleep` is a thin shim around `setTimeout` that adheres to NodeJS conventions, taking a `handler`
+  callback function as last argument. Also, the timeout is given in humane seconds rather than in µs. ###
+  setTimeout handler, time_s * 1000
+  return null
 
 
-iterator = myGenerator()
-iterator.next()
+#===========================================================================================================
+# EX.: WALK'N'TALK
+#-----------------------------------------------------------------------------------------------------------
+walk_and_talk = ( resume ) ->*
+  ### An example to demonstrate that multiple `yield`s are possible within a suspended function. We really
+  can serialize asynchronous processing steps this way–think multiple calls to a database while drilling
+  down into the data–without invoking the Pyramid of Doom.###
+  log "after"
+  yield sleep 1, resume
+  log "a"
+  yield sleep 1, resume
+  log "long"
+  yield sleep 1, resume
+  log "time"
+
+#-----------------------------------------------------------------------------------------------------------
+step walk_and_talk
+
+
+#===========================================================================================================
+# EX.: USING STANDARD ASYNCHRONOUS METHODS
+#-----------------------------------------------------------------------------------------------------------
+step ( resume ) ->*
+  ### Asynchronous file-reading example using `step`: ###
+  [ error
+    text  ] = yield njs_fs.readFile __filename, 'utf-8', resume
+  throw error if error?
+  log "read #{text.length} chrs"
+
+
+
 
 
