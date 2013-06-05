@@ -1,7 +1,7 @@
 {
-  "name":         "coffee-script",
+  "name":         "coffy-script",
   "description":  "CoffeeScript with a Y.",
-  "keywords":     ["javascript", "language", "coffeescript", "compiler"],
+  "keywords":     ["javascript", "language", "coffeescript", "coffyscript", "transpiler", "compiler"],
   "author":       "Jeremy Ashkenas",
   "version":      "1.6.3",
   "licenses":     [{
