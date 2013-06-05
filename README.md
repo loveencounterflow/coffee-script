@@ -107,6 +107,50 @@ to the arrows:
       # ... some code ...
       yield x
 
+Should you forget the asterisk after the arrow, you will get a rather unhelpful error from NodeJS stating
+that it 'doesn't know about yield', which of course is bollocks (provided that you do have a bleeding edge
+version of NodeJS); just remember that when 'yield' occurs in an error message, the asterisk is the first
+thing to check.
+
+## Suspension
+
+`yield` really starts to shine for a lot of use cases with full language support, such as what you have in
+Python. Specifically, there are–on the one hand–lots and lots of builts-ins / standard library functions
+in Python that routinely avoid building lists; on the other hand, you can transparently iterate over
+generated values in a `for x in foo()` loop. Most of the time, you don't have to worry about whether you
+got a list or a generator, you can just so use it. Doing this in a lot of places makes sense, as it should
+reduce memory consumption, drive down garbage collection cycles, and also be faster.
+
+Unfortunately, JavaScript isn't quite there yet. NodeJS as of 11.2 does not yet provide a full-fledged
+implementation of JS Harmony iterators and generators, so JavaScripters can't yet get away with simply
+writing `for x of foo()`–you always have to use explicit calls like `generator.next()`, `generator.send()`,
+`generator.throw()`, `generator.close()`.
+
+JavaScript might not be as 'iterative' as modern Pythons are, but it sure is a *lot* more asynchronous.
+There are quite a few rantish blog posts and flaming discussions going on on the net–both about NodeJS's
+decision to opt for callbacks in particular, and JavaScript's asynchronous qualities in general. We all know
+the choices (and, given the sheer number of choices and their varying degrees of ease / maturity /
+standardization, i would say that callbacks really are a good common denominator). When it comes to
+handling asynchronous control flow, it all boils down to these:
+
+* Callbacks. Simple, well standardized. But: Pyramid of Doom.
+
+* Events. More expressive than callbacks.
+
+* Promises. An emerging standard (cf. 'Promises/A+'). Harder to get right than callbacks, as witnesses by
+  the sheer number of libraries that *didn't* get it right (mighty jQuery being one of them–shows you just
+  how hard they are).
+
+* Libraries like Tim Caswell's Step, the famous `async` library, countless others: Interesting; some of them
+  quite usable; some are very useful e.g. to limit the number of asynchronous calls you make at any given
+  point in time, or to wait on the completion of a variable number of calls you have to make. Sadly, this
+  field represents the opposite of standardization, each library being an entire small API world in its
+  own.
+
+* Proprietary language extensions, like e.g. Iced Coffee Script. Interesting, but unless ideas tested by the
+
+* Transpiling languages with asynchronous constructs. GorillaScript, PogoScript,
+  [ToffeeScript](https://github.com/jiangmiao/toffee-script)
 
 
 
