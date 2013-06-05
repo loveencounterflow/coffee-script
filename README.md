@@ -172,9 +172,10 @@ handling asynchronous control flow, it all boils down to these:
   acceptable as far as the generated code goes.
 
   PogoScript, as a case in point, allows you to decorate
-  your asynchronous function call, allowing you to write `x = f! a` as if `f a` replaced by `f! a` was an
+  your asynchronous function call, so you can write `x = f! a` as if `f a` replaced by `f! a` was an
   asynchronous-turned-synchronous function call (i call this 'folded style', the callback part being
-  like 'folded back' into your primary control flow). Of course, within the limits of JavaScript, this isn't
+  like 'folded back' into your primary control flow). Of course, within the limits of JavaScript (*particularly
+  in the absence of `yield`*), this isn't
   possible without reordering code and dealing with callbacks etc. behind the scenes. You do get benefits
   like being able to catch asynchronous errors inside a (seemingly) run-of-the mill `try` / `catch` clause,
   but the expensiveness is baffling: a single line, a single 'folded' code will expand to ~25 lines of
