@@ -166,7 +166,7 @@ handling asynchronous control flow, it all boils down to these:
   changing the very syntax, introduce new or improved operators, reordering code stuff like that.
 
   While i find transpiling languages very exciting mainly because they allow you to write code for an
-  existing, popular VM with well-known properties without being bound to (all of) the idiosynchrasies
+  existing, popular VM with well-known properties and without being bound to (all of) the idiosynchrasies
   of that VM, be it syntax or annoying language shortcomings (say, the mere existence of JS's `==`,
   rightfully eliminated by CoffeeScript and others) there are certain limits to what is desirable or even
   acceptable as far as the generated code goes.
@@ -174,15 +174,24 @@ handling asynchronous control flow, it all boils down to these:
   PogoScript, as a case in point, allows you to decorate
   your asynchronous function call, so you can write `x = f! a` as if `f a` replaced by `f! a` was an
   asynchronous-turned-synchronous function call (i call this 'folded style', the callback part being
-  like 'folded back' into your primary control flow). Of course, within the limits of JavaScript (*particularly
-  in the absence of* `yield`), this isn't
-  possible without reordering code and dealing with callbacks etc. behind the scenes. You do get benefits
-  like being able to catch asynchronous errors inside a (seemingly) run-of-the mill `try` / `catch` clause,
-  but the expensiveness is baffling: a single line, a single 'folded' code will expand to ~25 lines of
-  JavaScript, maybe ok; but: three 'folded' calls within a `try` / `catch` / `finally` clause (6 lines)
-  will *explode* to ~150 lines, forming a pyramid that is up to *ten* stories deep, all riddled with
+  like 'folded back' into your primary control flow). Of course, within the limits of JavaScript *without*
+  `yield`, turning an asynchronous into a synchronous call is not
+  possible without a massive reordering of code and dealing with callbacks and exceptions behind the scenes.
+
+  So while you do get benefits from this approach
+  (like being able to catch asynchronous errors inside a seemingly run-of-the mill `try` / `catch` clause),
+  the expensiveness in terms of resulting code complexity is baffling: a single line, a single 'folded'
+  call will expand to ~25 lines of
+  JavaScript—each single one. Worse, a single `try` / `catch` / `finally` clause with three 'folded' calls
+  on 6 lines of source
+  will *explode* to ~150 lines of target JS, forming a pyramid that is up to *ten* stories deep, all riddled with
   nested `if` / `else` and `try` / `catch` clauses. Debugging a chess programm written in Brainfuck is
-  probably easier than to digest that heap of spaghetti.
+  probably easier than to digest *this* heap of spaghetti. Nice try, but thank you. And thank you Jeremy
+  and everyone for not allowing this to happen in CS. (Disclaimer: not one here to disparage PogoScript or
+  its authors in whichever ways—making this work is an achievement to be sure. I'm just saying this hammer
+  is probably not what you wanted to fix your screw.)
+
+  Turns out this 'folded' code of some languages is pretty similar to what you can get with `yield`.
 
 * **Native Language Extensions** (that modify NodeJS or another VM), e.g. Iced Coffee Script. Interesting
   and certainly potentially able to provide most powerful solution to the asynchronous conondrum. But:
