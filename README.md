@@ -194,14 +194,14 @@ handling asynchronous control flow, it all boils down to these:
   **Turns out the 'folded' calls of some transpiling languages is pretty similar to what you can get with `yield`.**
 
 * **Native Language Extensions** (that modify NodeJS or another VM), e.g. Iced Coffee Script. Interesting
-  and certainly potentially able to provide most powerful solution to the asynchronous conondrum. But:
+  and certainly potentially able to provide the most powerful solutions to the asynchronous conondrum. But:
   unless ideas tested and proven by such projects enter the mainstream (read: become part of ES), they won't
   fly (far). Platform fragmentation has and will be one difficult aspect of JavaScript, and more
   fragmentation won't cut it. When you have the chance to work within the world's best-deployed software
   platform / VM, you don't want to lock out yourself for thirty pieces of silver and a few saved callbacks
   (bad enough `yield` needs an unstable version of NodeJS).
 
-* **Using another VM** altogether—Haskell, Erlang or Go maybe. Ouside of my consideration; but of course, there
+* **Using another VM altogether**—Haskell, Erlang or Go maybe. Ouside of my consideration; but of course, there
   may be valuable lessons in other VMs, e.g. [exception handling in Go](http://blog.golang.org/error-handling-and-go),
   which is completely different from what you would (or even could) do in unadultered JavaScript. Otherwise,
   it's pretty much that thirty pieces of silver thing for me again.
