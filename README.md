@@ -111,7 +111,7 @@ that it 'doesn't know about yield', which of course is bollocks (provided that y
 version of NodeJS); just remember that when 'yield' occurs in an error message, the asterisk is the first
 thing to check.
 
-## Suspension
+## Asynchronicity & How to Cope with it
 
 `yield` really starts to shine for a lot of use cases with full language support, such as what you have in
 Python. Specifically, there are–on the one hand–lots and lots of builts-ins / standard library functions
