@@ -11,7 +11,7 @@ and
 [EcmaScript 6 (ES6, dubbed 'Harmony')](http://wiki.ecmascript.org/doku.php?id=harmony:generators), we have a
 Python-like `yield` keyword in JavaScript. Yeah!
 
-That's really cool–'cause, y'know, `yield` brings generators, and generators are cool for—you
+That's really cool—'cause, y'know, `yield` brings generators, and generators are cool for—you
 guessed it—asynchronous programming.
 
 Unfortunately, it's not looking as if [CoffeeScript](https://github.com/jashkenas/coffee-script) in its
@@ -68,7 +68,7 @@ Code execution in the generator function is then suspended (not *terminated*, as
 normal function), preserving the state of the function's scope. If you're still with me: Yes, that's a lot
 like asynchronous code, and it's also a lot like closures.
 
-But–why the lucky stiff would you ever want this? Why not build a list of those Fibo numbo-jumbos and return
+But—why the lucky stiff would you ever want this? Why not build a list of those Fibo numbo-jumbos and return
 that?
 
 'Courseyoucoulddothat. But. What if there are infinitely many of those numbers (and there are)? What if
@@ -82,11 +82,11 @@ results you will need?
 `--harmony` command line flag so you don't have to. If this should break things, consider changing
 that to `--harmony-generators`.**
 
-CoffyScript is as yet **experimental**–a quick hack of the CoffeeScript grammar. **You should probably not use
+CoffyScript is as yet **experimental**—a quick hack of the CoffeeScript grammar. **You should probably not use
 it to control a space rocket.**
 
-Currently, the focus is on getting generators right in NodeJS; other targets–most importantly Firefox
-(which does not fully comply with ES6 generator specs)–are *not* supported.
+Currently, the focus is on getting generators right in NodeJS; other targets—most importantly Firefox
+(which does not fully comply with ES6 generator specs)—are *not* supported.
 
 ES6 also specifies `yield*`, which corresponds to Python's `yield from` construct. However, if you try to
 use that in NodeJS 0.11.2, you're bound to witness the Longest. Stacktrace. Ever. from deep inside of NodeJS,
@@ -113,8 +113,8 @@ thing to check.
 
 ## Asynchronicity & How to Cope with it
 
-`yield` really starts to shine for a lot of use cases with full language support, such as what you have in
-Python. Specifically, there are–on the one hand–lots and lots of builts-ins / standard library functions
+`yield` really starts to shine for a lot of use cases with full language support, such as what you get in
+Python. Specifically, there are—on the one hand—lots and lots of builts-ins / standard library functions
 in Python that routinely avoid building lists; on the other hand, you can transparently iterate over
 generated values in a `for x in foo()` loop. Most of the time, you don't have to worry about whether you
 got a list or a generator, you can just so use it. Doing this in a lot of places makes sense, as it should
@@ -122,11 +122,11 @@ reduce memory consumption, drive down garbage collection cycles, and also be fas
 
 Unfortunately, JavaScript isn't quite there yet. NodeJS as of 11.2 does not yet provide a full-fledged
 implementation of JS Harmony iterators and generators, so JavaScripters can't yet get away with simply
-writing `for x of foo()`–you always have to use explicit calls like `generator.next()`, `generator.send()`,
+writing `for x of foo()`—you always have to use explicit calls like `generator.next()`, `generator.send()`,
 `generator.throw()`, `generator.close()`.
 
 JavaScript might not be as 'iterative' as modern Pythons are, but it sure is a *lot* more asynchronous.
-There are quite a few rantish blog posts and flaming discussions going on on the net–both about NodeJS's
+There are quite a few rantish blog posts and flaming discussions going on on the net—both about NodeJS's
 decision to opt for callbacks in particular, and JavaScript's asynchronous qualities in general. We all know
 the choices (and, given the sheer number of choices and their varying degrees of ease / maturity /
 standardization, i would say that callbacks really are a good common denominator). When it comes to
@@ -140,7 +140,7 @@ handling asynchronous control flow, it all boils down to these:
   for a single callback handler to get called.
 
 * Promises. An emerging standard (cf. 'Promises/A+'). Harder to get right than callbacks, as witnesses by
-  the sheer number of libraries that *didn't* get it right (mighty jQuery being one of them–shows you just
+  the sheer number of libraries that *didn't* get it right (mighty jQuery being one of them—shows you just
   how hard they are). Promises may be thought of 'specialized event handlers' of sorts.
 
 * Libraries like Tim Caswell's Step, the famous `async` library, countless others: Interesting; some of them
@@ -163,12 +163,12 @@ handling asynchronous control flow, it all boils down to these:
   [ToffeeScript](https://github.com/jiangmiao/toffee-script). Transpiling
   languages occupy a middle ground between mere libraries and native language extensions. The justification
   for transpiling languages is that there are things you just can't push into a library—for example,
-  changing the very syntax, introduce new or improved operators, reordering code–stuff like that.
+  changing the very syntax, introduce new or improved operators, reordering code—stuff like that.
 
-  While i find transpiling languages very exciting–mainly because they allow you to write code for an
+  While i find transpiling languages very exciting—mainly because they allow you to write code for an
   existing, popular VM with well-known properties without being bound to (all of) the idiosynchrasies
   of that VM, be it syntax or annoying language shortcomings (say, the mere existence of JS's `==`,
-  rightfully eliminated by CoffeeScript and others)–there are certain limits to what is desirable or even
+  rightfully eliminated by CoffeeScript and others)—there are certain limits to what is desirable or even
   acceptable as far as the generated code goes.
 
   PogoScript, as a case in point, allows you to decorate
