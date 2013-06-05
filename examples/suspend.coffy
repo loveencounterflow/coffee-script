@@ -1,0 +1,33 @@
+
+############################################################################################################
+# ERROR                     = require 'coffeenode-stacktrace'
+njs_util                  = require 'util'
+# njs_path                  = require 'path'
+# njs_fs                    = require 'fs'
+#...........................................................................................................
+log                       = console.log
+rpr                       = njs_util.inspect
+
+
+### TAINT not a test suite just yet, just an example ###
+
+
+#-----------------------------------------------------------------------------------------------------------
+myGenerator = ->*
+  console.log "hello"
+  yield sleep 2000
+  # 2 seconds later
+  console.log "world"
+
+#-----------------------------------------------------------------------------------------------------------
+# create and initiate our iterator
+sleep = (ms) ->
+  setTimeout (->
+    iterator.next()
+  ), ms
+
+
+iterator = myGenerator()
+iterator.next()
+
+

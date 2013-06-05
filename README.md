@@ -80,8 +80,8 @@ results you will need?
 
 **Note: You will need NodeJS version ≥ 0.11.2 to use `yield`. The `bin/coffee` executable sets the V8
 `--harmony` command line flag so you don't have to. If this should break things, consider changing
-that to `--harmony-generators`.** (Note: `--harmony_proxies` is also set,
-so you do experiments how ES6 Proxies can help dealing with iterating over generated values).
+that to `--harmony-generators`.** (Note: as `--harmony_proxies` is also implicitly by `--harmony`,
+you can experiment how ES6 Proxies help dealing with iterating over generated values).
 
 CoffyScript is as yet experimental–a quick hack of the CoffeeScript grammar. You should probably not use
 it to control a space rocket.

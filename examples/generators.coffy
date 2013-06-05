@@ -40,69 +40,6 @@ walk_abc = ->*
   yield 'c'
   return
 
-# walk = ( generator ) ->
-#   R = generator.next()
-
-# get_data = ( handler ) ->
-#   handler null, 42
-#   return null
-
-# f = ->*
-#   get_data -> ( error, data ) ->
-#     throw error if error?
-#     yield data
-
-# g = f()
-# log g.next()
-
-
-
-#-----------------------------------------------------------------------------------------------------------
-
-# `
-# for ( var x of walk_fibonacci() ) {
-#   log( x ); }
-# `
-
-# g = walk_fibonacci()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log g.next()
-# log x = g.next()[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.throw 'reset' )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-# log ( g.send x * 2 )[ 'value' ]
-
 walk = ( generator ) ->
   { value
     done   }  = generator.next()
@@ -132,13 +69,6 @@ walk = ( generator ) ->
       return next_value
 
 
-
-# for n of walk walk_fibonacci()
-#   log n
-
-# for n in walk walk_fibonacci()
-#   log n
-
 `
 _ref = walk(walk_abc());
 var reflen;
@@ -149,14 +79,6 @@ for (_i = 0; _i < ( reflen = _ref.length ); _i++) {
 `
 
 
-
-
-# log f[ 1 ]
-# log f[ 2 ]
-# log f[ 2 ]
-# log f[ 2 ]
-
-# # log ( name for name of f )
 
 # Stack = ->
 #   stack = []
@@ -179,23 +101,6 @@ for (_i = 0; _i < ( reflen = _ref.length ); _i++) {
 # # log mystack[0] #undefined
 # # log mystack.pop() #"goodbye"
 
-
-# getset = ->
-#   target = {}
-#   name = 0
-#   getter = ( P... ) ->
-#     log '+++', P
-#     return 42
-#   #.........................................................................................................
-#   Object.defineProperty target, name,
-#     configurable:  yes
-#     enumerable:    yes
-#     get:           getter
-#     set:           undefined
-#   return target
-
-# # x = getset()
-# # log '...', x[ 0 ]
 
 
 

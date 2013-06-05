@@ -1,4 +1,4 @@
-#!/usr/bin/env node --harmony --harmony_proxies
+#!/usr/bin/env node --harmony
 
 var path = require('path');
 var fs   = require('fs');
