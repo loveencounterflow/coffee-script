@@ -25,7 +25,7 @@ step = ( stepper ) ->
 #-----------------------------------------------------------------------------------------------------------
 sleep = ( time_s, handler ) ->
   ### `sleep` is a thin shim around `setTimeout` that adheres to NodeJS conventions, taking a `handler`
-  callback function as last argument. Also, the timeout is given in humane seconds rather than in µs. ###
+  callback function as last argument. Also, the timeout is given in humane seconds rather than in ms. ###
   setTimeout handler, time_s * 1000
   return null
 
@@ -35,8 +35,8 @@ sleep = ( time_s, handler ) ->
 #-----------------------------------------------------------------------------------------------------------
 walk_and_talk = ( resume ) ->*
   ### An example to demonstrate that multiple `yield`s are possible within a suspended function. We really
-  can serialize asynchronous processing steps this way–think multiple calls to a database while drilling
-  down into the data–without invoking the Pyramid of Doom.###
+  can serialize asynchronous processing steps this way—think multiple calls to a database while drilling
+  down into the data—without invoking the Pyramid of Doom. ###
   log "after"
   yield sleep 1, resume
   log "a"
