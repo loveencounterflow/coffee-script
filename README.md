@@ -115,7 +115,7 @@ thing to check.
 
 [suspend](https://github.com/jmar777/suspend)
 
-have a look at `examples/sudpend.coffy`
+have a look at `examples/suspend.coffy`
 
 ## Asynchronicity & How to Cope with it
 
