@@ -32,27 +32,27 @@ maybe 'resumable return' is not so bad after all.
 The simplest example for using generators may be something like this (`log` being a shortcut for
 `console.log` here):
 
-`````coffeescript
+```coffeescript
 
-    # Using a star after the arrow 'licenses' the use of `yield` in the function body;
-    # it basically says: this is not an ordinary function, this is a generator function:
-    count = ->*
-      yield 1
-      yield 2
-      yield 3
+# Using a star after the arrow 'licenses' the use of `yield` in the function body;
+# it basically says: this is not an ordinary function, this is a generator function:
+count = ->*
+  yield 1
+  yield 2
+  yield 3
 
-    # Calling a generator function returns a generator:
-    counting_generator = count()
+# Calling a generator function returns a generator:
+counting_generator = count()
 
-    # Now that we have a generator, we can call one of its methods, `next`:
-    log counting_generator.next()   # prints: { value: 1, done: false }
+# Now that we have a generator, we can call one of its methods, `next`:
+log counting_generator.next()   # prints: { value: 1, done: false }
 
-    # ...and we can go on doing so until the generator becomes exhausted:
-    log counting_generator.next()   # prints: { value: 2, done: false }
-    log counting_generator.next()   # prints: { value: 3, done: false }
-    log counting_generator.next()   # prints: { value: undefined, done: true }
+# ...and we can go on doing so until the generator becomes exhausted:
+log counting_generator.next()   # prints: { value: 2, done: false }
+log counting_generator.next()   # prints: { value: 3, done: false }
+log counting_generator.next()   # prints: { value: undefined, done: true }
 
-`````
+```
 
 *(Note: The output you see is somewhat of a specialty of ES6 generators. In Python, generators throw a special
 `StopIteration` exception to signal the generator has run to completion; because of [concerns over
