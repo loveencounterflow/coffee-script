@@ -29,6 +29,8 @@ starters. For the more technically oriented,
 represented as objects encapsulating suspended execution contexts (i.e., function activations)." Well,
 maybe 'resumable return' is not so bad after all.
 
+### Minimal Example
+
 The simplest example for using generators may be something like this (`log` being a shortcut for
 `console.log` here):
 
@@ -60,13 +62,15 @@ log counting_generator.next()   # throws an error saying "Generator has already 
 > efficiency and correctness in a fundamentally asynchronous language like
 > JavaScript](https://github.com/rwldrn/tc39-notes/blob/master/es6/2013-03/mar-12.md#412-stopiterationgenerator),
 > the consensus among developers is that yielding an object with members `value` and `done` is better.
-> In CoffeeScript this is easy dealt with using `{ value, done } = g.next()`.)*
+> In CoffeeScript this is easily dealt with using `{ value, done } = g.next()`.)*
 
 So what happens here is essentially that the generator will, on the first call to `g.next()`, do whatever
 the function definition say, until it hits `yield`. It will return the argument of that `yield`, and suspend
 operation. When `g.next()` is called, it picks up from where it left and run until it hits upon the next
 `yield`; if no more `yield`s are left, an object with `done: true` is returned; from that point on, calling
 `g.next()` will cause an exception.
+
+### Endless Loops
 
 Now let's look at a slightly more interesting example. I'm sure you're already shivering in anticipation how
 one might do Fibonacci numbers with generators. Here's one way:
@@ -104,13 +108,85 @@ loop
 # 51680708854858330000
 # 83621143489848430000
 
+# ...and stop there as the next value would be larger than the limit we set.
+
 ```
 
-This example shows that ① `yield` can be used similar to a list, but without ever building that list (a
-side effect of that: you can build a list with arbitrary many elements, the limitation being *time*
-rather than *space*); ② a `return` statement inside a generator function indicates the last value has just
+This example shows that:
+
+**①** `yield` can be used similar to a list, but without ever building that list, so
+you can build a list with arbitrary many elements, the limitation being *time*
+rather than *space*—a use case for this is reading huge files as streams, segmenting them into lines, and
+then yielding those lines to a processor. Stuff like this will become much more palatable once NodeJS
+implements true iteration using `for x of g` statements.
+
+② A `return` statement inside a generator function indicates the last value has just
 been reached (this again is different from Python, where a `return` in a generator function cannot return
 any value).
+
+### Throwing Errors
+
+When you call `g.throw error`, you'll **throw an error *inside* the generator**. Understanding by example is maybe
+the easiest:
+
+```coffeescript
+
+fibonacci_with_throw = ->
+  walk_fibonacci = ->*
+    a = 1
+    b = 1
+    loop
+      try
+        c = a + b
+        return c if c > 1e+20
+        yield c
+        a = b
+        b = c
+      catch error
+        log 'CAUGHT ERROR IN GENERATOR:', error
+        return "it's over!"
+
+  g = walk_fibonacci()
+
+  loop
+    { value, done } = g.next()
+    if done
+      log 'terminated'
+      break
+    { value, done } = g.throw new Error "144!!!!" if value is 144
+    if done
+      log 'received value:', rpr value
+      log 'aborted'
+      break
+    log value
+
+# prints:
+# 2
+# 3
+# 5
+# 8
+# 13
+# 21
+# 34
+# 55
+# 89
+# CAUGHT ERROR IN GENERATOR: [Error: 144!!!!]
+# received value: 'it\'s over!'
+# aborted
+```
+> *(`rpr` in the above is just `( require 'util' ).inspect`)*
+
+As you can see, `g.throw()` gets an object back just like `g.next()` does. When the generator catches
+the error, it may or may not decide to go on delivering values; in our case, we just return an unhelpful
+message and call it quits. Control flow literally bounces to and fro between caller and callee, as
+documented by the log messages.
+
+
+### Sending Values
+
+Now we get to the point where we examine the single most exciting gem—what might well turn out to be the
+future of asynchronous programming in JavaScript, and that is **sending values into a generator**.
+
 
 ## Implementation Status
 

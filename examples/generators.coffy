@@ -30,8 +30,42 @@ fibonacci = ->
   loop
     { value, done } = g.next()
     break if done
+    g.throw "144!!!!" if value is 144
+    log value
+
+#-----------------------------------------------------------------------------------------------------------
+fibonacci_with_throw = ->
+  walk_fibonacci = ->*
+    a = 1
+    b = 1
+    loop
+      try
+        c = a + b
+        return c if c > 1e+20
+        yield c
+        a = b
+        b = c
+      catch error
+        log 'CAUGHT ERROR IN GENERATOR:', error
+        return "it's over!"
+
+  g = walk_fibonacci()
+
+  loop
+    { value, done } = g.next()
+    if done
+      log 'terminated'
+      break
+    { value, done } = g.throw new Error "144!!!!" if value is 144
+    if done
+      log 'received value:', rpr value
+      log 'aborted'
+      break
     log value
 
 
+############################################################################################################
+# fibonacci()
+fibonacci_with_throw()
 
 
