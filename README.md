@@ -32,7 +32,7 @@ maybe 'resumable return' is not so bad after all.
 The simplest example for using generators may be something like this (`log` being a shortcut for
 `console.log` here):
 
-`````javascript
+`````coffeescript
 
     # Using a star after the arrow 'licenses' the use of `yield` in the function body;
     # it basically says: this is not an ordinary function, this is a generator function:
