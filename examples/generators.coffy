@@ -106,8 +106,7 @@ for (_i = 0; _i < ( reflen = _ref.length ); _i++) {
 # # log mystack.pop() #"goodbye"
 
 
-f = ->*
-  yield null
+f = ->* yield null
 g = f()
 log name for name of g
 

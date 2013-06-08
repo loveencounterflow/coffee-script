@@ -2,14 +2,14 @@
   "name":         "coffy-script",
   "description":  "CoffeeScript with a Y.",
   "keywords":     ["javascript", "language", "coffeescript", "coffyscript", "transpiler", "compiler"],
-  "author":       "Jeremy Ashkenas",
+  "author":       "loveencounterflow",
   "version":      "1.6.3",
   "licenses":     [{
     "type":       "MIT",
     "url":        "https://raw.github.com/jashkenas/coffee-script/master/LICENSE"
   }],
   "engines":      {
-    "node":       ">=0.8.0"
+    "node":       "~0.11.2"
   },
   "directories" : {
     "lib" : "./lib/coffee-script"
@@ -22,11 +22,11 @@
   "scripts": {
     "test": "node ./bin/cake test"
   },
-  "homepage":     "http://coffeescript.org",
-  "bugs":         "https://github.com/jashkenas/coffee-script/issues",
+  "homepage":     "https://github.com/loveencounterflow/coffy-script",
+  "bugs":         "https://github.com/loveencounterflow/coffy-script/issues",
   "repository":   {
     "type": "git",
-    "url": "git://github.com/jashkenas/coffee-script.git"
+    "url": "git://github.com/loveencounterflow/coffy-script.git"
   },
   "devDependencies": {
     "uglify-js":  "~2.2",
