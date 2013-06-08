@@ -23,12 +23,17 @@ step = ( stepper ) ->
   return R()
 
 #-----------------------------------------------------------------------------------------------------------
-sleep = ( time_s, handler ) ->
-  ### `sleep` is a thin shim around `setTimeout` that adheres to NodeJS conventions, taking a `handler`
+after = ( time_s, handler ) ->
+  ### `after` is a thin shim around `setTimeout` that adheres to NodeJS conventions, taking a `handler`
   callback function as last argument. Also, the timeout is given in humane seconds rather than in ms. ###
   setTimeout handler, time_s * 1000
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+eventually = ( handler ) ->
+  ### `eventually f` is just another name for `process.nextTick f`—which in turn is basically equivalent to
+  `after 0, f`. ###
+  return process.nextTick handler
 
 #===========================================================================================================
 # EX.: WALK'N'TALK
@@ -38,28 +43,120 @@ walk_and_talk = ( resume ) ->*
   can serialize asynchronous processing steps this way—think multiple calls to a database while drilling
   down into the data—without invoking the Pyramid of Doom. ###
   log "after"
-  yield sleep 1, resume
+  yield after 1, resume
   log "a"
-  yield sleep 1, resume
+  yield after 1, resume
   log "long"
-  yield sleep 1, resume
+  yield after 1, resume
   log "time"
 
-#-----------------------------------------------------------------------------------------------------------
-step walk_and_talk
-
-
 #===========================================================================================================
-# EX.: USING STANDARD ASYNCHRONOUS METHODS
+# EX.: USING ASYNCHRONOUS METHODS WITH CALLBACKS
 #-----------------------------------------------------------------------------------------------------------
-step ( resume ) ->*
-  ### Asynchronous file-reading example using `step`: ###
+read_file = ( handler ) ->*
+  ### Asynchronous file-reading example. ###
   [ error
-    text  ] = yield njs_fs.readFile __filename, 'utf-8', resume
+    text  ] = yield njs_fs.readFile __filename, 'utf-8', handler
   throw error if error?
   log "read #{text.length} chrs"
 
 
+#-----------------------------------------------------------------------------------------------------------
+double = ( n, handler ) ->
+  ### An asynchronous function that takes anywhere between zero and one second of time. ###
+  after Math.random(), ->
+    Z = n * 2
+    log "double: #{n} -> #{Z}"
+    handler null, Z
+  return null
 
+#-----------------------------------------------------------------------------------------------------------
+double_numbers_in_serial = ( n0, n1, handler ) ->
+  ### Demonstration of how to use `suspend` / `step` to run multiple asynchronous calls in serial: The
+  loop emitting the calls is located in a suspended generator function. Because execution is suspended on
+  each turn, we can call the handler when the loop has finished, just as if the asynchronous calls had been
+  synchronous calls. Total execution time will be close to the number of calls times the mean time needed
+  for each single turn. ###
+  Z     = []
+  #.........................................................................................................
+  step ( resume ) ->*
+    for i in [ n0 .. n1 ]
+      [ error
+        result ] = yield double i, resume
+      handler error if error?
+      Z.push result
+    handler null, Z
+
+#-----------------------------------------------------------------------------------------------------------
+double_numbers_in_parallel = ( n0, n1, handler ) ->
+  ### Demonstration of how to use `suspend` / `step` to run multiple asynchronous calls in parallel: In this
+  case, the loop suspends one call on each turn; we have to keep track of the number of active calls as
+  there is no other indication at what point in time all the calls have finished. The results get all
+  pushed into a results list, meaning they are bound to appear in random order. Total execution time will
+  be close to the maximum execution time of all the calls. ###
+  Z                 = []
+  active_call_count = 0
+  #.........................................................................................................
+  for i in [ n0 .. n1 ]
+    active_call_count += 1
+    step ( resume ) ->*
+      [ error
+        result ] = yield double i, resume
+      active_call_count -= 1
+      handler error if error?
+      Z.push result
+      handler null, Z if active_call_count is 0
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+double_numbers_in_sorted_parallel = ( n0, n1, handler ) ->
+  ### The same as `double_numbers_in_parallel`, except that we keep a tab on where in the result list each
+  return value has to go; this necessitates one more closure. ###
+  Z                 = []
+  active_call_count = 0
+  #.........................................................................................................
+  for i in [ n0 .. n1 ]
+    idx                 = active_call_count
+    active_call_count  += 1
+    do ( idx ) ->
+      step ( resume ) ->*
+        [ error
+          result ] = yield double i, resume
+        active_call_count -= 1
+        handler error if error?
+        Z[ idx ] = result
+        handler null, Z if active_call_count is 0
+  #.........................................................................................................
+  return null
+
+
+#===========================================================================================================
+# TESTING
+#-----------------------------------------------------------------------------------------------------------
+test_serial = ->
+  double_numbers_in_serial 11, 21, ( error, data ) ->
+    throw error if error?
+    log "results from serial processing:", data
+
+#-----------------------------------------------------------------------------------------------------------
+test_parallel = ->
+  double_numbers_in_parallel 11, 21, ( error, data ) ->
+    throw error if error?
+    log "results from parallel processing:", data
+
+#-----------------------------------------------------------------------------------------------------------
+test_sorted_parallel = ->
+  double_numbers_in_sorted_parallel 11, 21, ( error, data ) ->
+    throw error if error?
+    log "results from sorted parallel processing:", data
+
+
+############################################################################################################
+# test_serial()
+# test_parallel()
+# step walk_and_talk
+# ( suspend read_file )()
+test_sorted_parallel()
 
 

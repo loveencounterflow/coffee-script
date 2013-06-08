@@ -15,12 +15,40 @@ That's really cool 'cause, y'know, `yield` brings generators, and generators are
 guessed it—asynchronous programming.
 
 Unfortunately, it's not looking as if [CoffeeScript](https://github.com/jashkenas/coffee-script) in its
-official incarnation is [going to support `yield` any time soon](https://github.com/jashkenas/coffee-script/wiki/FAQ#unsupported-features),
+official incarnation is
+[going to support `yield` any time soon](https://github.com/jashkenas/coffee-script/wiki/FAQ#unsupported-features),
 which is a shame since it has already landed in NodeJS—which relies on V8, and the V8 team is known to be rather
 conservative with features (which is understandable when your aim is to build the fastest *and* the most compatible
 JavaScript engine).
 
-## A Quick Example
+## So what is this Yield All About?
+
+If you have never programmed with iterators and generators, you may imagine as a 'resumable return' for
+starters. For the more technically oriented,
+[ES6 defines generators](http://wiki.ecmascript.org/doku.php?id=harmony:generators) as "First-class coroutines,
+represented as objects encapsulating suspended execution contexts (i.e., function activations)." Well,
+maybe 'resumable return' is not so bad after all.
+
+The simplest example for using generators may be something like this (`log` being a shortcut for
+`console.log` here):
+
+    # Using a star after the arrow 'licenses' the use of `yield` in the function body;
+    # it basically says: this is not an ordinary function, this is a generator function:
+    count = ->*
+      yield 1
+      yield 2
+      yield 3
+
+    # Calling a generator function returns a generator:
+    counting_generator = count()
+
+    # Now that we have a generator, we can call one of its methods, `next`:
+    log counting_generator.next()
+    # { value: 1, done: false }
+
+The output you see is somewhat of an (unfortunate, i believe) specialty of ES6 generators
+
+<!-- ## A Quick Example
 
 This is, in a nutshell, what CoffyScript gives you:
 
@@ -74,16 +102,16 @@ that?
 'Courseyoucoulddothat. But. What if there are infinitely many of those numbers (and there are)? What if
 each one of them is rather costly to compute (here it's simple)? What if you're not sure just yet how many
 results you will need?
-
+ -->
 
 ## Implementation Status
 
 **Note: You will need NodeJS version ≥ 0.11.2 to use `yield`. The `bin/coffee` executable sets the V8
-`--harmony` command line flag so you don't have to. If this should break things, consider changing
-that to `--harmony-generators`.**
+`--harmony` command line flag so you don't have to. If this should break things with part of your code,
+consider changing that to `--harmony-generators`.**
 
-CoffyScript is as yet **experimental** a quick hack of the CoffeeScript grammar. **You should probably not use
-it to control a space rocket.**
+CoffyScript is as yet **experimental**—just a quick hack of the CoffeeScript grammar. **You should probably
+not use it to control a space rocket.**
 
 Currently, the focus is on getting generators right in NodeJS; other targets most importantly Firefox
 (which does not fully comply with ES6 generator specs) are *not* supported.
@@ -92,11 +120,12 @@ ES6 also specifies `yield*`, which corresponds to Python's `yield from` construc
 use that in NodeJS 0.11.2, you're bound to witness the Longest. Stacktrace. Ever. from deep inside of NodeJS,
 so don't do that.
 
+
 ## Syntax
 
 ES6 specifies that functions that use `yield` must be defined using `function*` instead of plain `function`.
 CoffeeScript's equivalent for the JS keyword `function` is the arrow notation, so we attach the asterisk
-to the arrows:
+to the arrows to get `->*` for ordinary and `=>*` for bound generator functions:
 
     walk_fibonacci = ->*
       # ... some code ...
@@ -111,11 +140,21 @@ that it 'doesn't know about yield', which of course is bollocks (provided that y
 version of NodeJS); just remember that when 'yield' occurs in an error message, the asterisk is the first
 thing to check.
 
+
 ## Suspension
 
-[suspend](https://github.com/jmar777/suspend)
+[suspend](https://github.com/jmar777/suspend) is a great little library that provides a single
+function, `suspend`, to make working with `yield` and asynchronous functions just a bit easier. Suppose you
+have a method to read a file and do something with that data:
+
+    read_file = ( handler ) ->*
+      [ error
+        text  ] = yield njs_fs.readFile __filename, 'utf-8', handler
+      throw error if error?
+      log "read #{text.length} chrs"
 
 have a look at `examples/suspend.coffy`
+
 
 ## Asynchronicity & How to Cope with it
 
@@ -128,15 +167,11 @@ reduce memory consumption, drive down garbage collection cycles, and also be fas
 
 Unfortunately, JavaScript isn't quite there yet. NodeJS as of 11.2 does not yet provide a full-fledged
 implementation of JS Harmony iterators and generators, so JavaScripters can't yet get away with simply
-writing `for x of foo()` you always have to use explicit calls like `generator.next()`, `generator.send()`,
+writing `for x of foo()`—you always have to use explicit calls like `generator.next()`, `generator.send()`,
 `generator.throw()`, `generator.close()`.
 
-JavaScript might not be as 'iterative' as modern Pythons are, but it sure is a *lot* more asynchronous.
-There are quite a few rantish blog posts and flaming discussions going on on the net both about NodeJS's
-decision to opt for callbacks in particular, and JavaScript's asynchronous qualities in general. We all know
-the choices (and, given the sheer number of choices and their varying degrees of ease / maturity /
-standardization, i would say that callbacks really are a good common denominator). When it comes to
-handling asynchronous control flow, it all boils down to these:
+JavaScript might not be as 'iterative' as modern Pythons are, but it sure is a *lot* more asynchronous by
+nature.
 
 * **Callbacks**. Simple, well standardized. CoffeeScript's function syntax makes callbacks a lot more viable for
   many people, being both easier to write and to read, it's much less of a burden to use functions all the
@@ -149,27 +184,22 @@ handling asynchronous control flow, it all boils down to these:
   all those attempts that *didn't* get it right (mighty jQuery being one of them—which goes to show just
   how hard promises are). Promises may be thought of 'specialized event handlers' of sorts.
 
-* **Control Flow Libraries** like Tim Caswell's Step, the famous `async` library, countless others: Interesting; some of them
-  quite usable; some are very useful e.g. to limit the number of asynchronous calls you make at any given
-  point in time, or to wait on the completion of a variable number of calls you have to make. Sadly, this
-  field represents the opposite of standardization, each library being an entire small API world in its
-  own. Some libraries require you to wrap your functions into library calls, or build objects that derive
-  from library objects, something that i don't like.
+* **Control Flow Libraries**. Packages like [Step](https://github.com/creationix/step) or
+  [async](https://github.com/caolan/async) library (and around 200 more).
 
-  One thing that must be said in favor of asynchronous control flow libraries is that they often provide
-  methods to simplify such composite tasks as: fulfill each subtask in parallel, and return a value when
-  all have finished; return a value as soon as any subtask has finished; run subtasks in parallel, but
-  limit the number of concurrent asynchronous calls. You should probably not program your own trigonometry
-  functions, and asynchronous chores like these should also probably be managed by a library, preferrably a
-  well-tested one.
+  Asynchronous control flow libraries typically provide methods to simplify such tasks as: fulfill each
+  subtask in parallel, and return a (list of) value(s) when all have finished; return a value as soon as any
+  subtask has finished; run subtasks in parallel, but limit the number of concurrent asynchronous calls.
 
-* **Transpiling languages** with asynchronous constructs, such as
+* **Transpiling languages with asynchronous constructs**, such as
   [GorillaScript](https://github.com/ckknight/gorillascript),
   [PogoScript](https://github.com/featurist/pogoscript),
-  [ToffeeScript](https://github.com/jiangmiao/toffee-script). Transpiling
+  [ToffeeScript](https://github.com/jiangmiao/toffee-script).
+  [Iced CoffeeScript](http://maxtaco.github.io/coffee-script/)
+  Transpiling
   languages occupy a middle ground between mere libraries and native language extensions. The justification
   for transpiling languages is that there are things you just can't push into a library—for example,
-  changing the very syntax, introduce new or improved operators, reordering code stuff like that.
+  changing the very syntax, introduce new or improved operators, reordering code—stuff like that.
 
   While i find transpiling languages very exciting mainly because they allow you to write code for an
   existing, popular VM with well-known properties and without being bound to (all of) the idiosyncrasies
@@ -187,7 +217,7 @@ handling asynchronous control flow, it all boils down to these:
   (like being able to catch asynchronous errors inside a seemingly run-of-the mill `try` / `catch` clause),
   the expensiveness in terms of resulting code complexity is baffling: a single line, a single 'folded'
   call will expand to ~25 lines of
-  JavaScript—each single one. Worse, a single `try` / `catch` / `finally` clause with three 'folded' calls
+  JavaScript. Worse, a single `try` / `catch` / `finally` clause with three 'folded' calls
   on 6 lines of source
   will *explode* to ~150 lines of target JS, forming a pyramid that is up to *ten* stories deep, all riddled with
   nested `if` / `else` and `try` / `catch` clauses. Debugging a chess programm written in Brainfuck is
@@ -196,9 +226,14 @@ handling asynchronous control flow, it all boils down to these:
   its authors in whichever ways—making this trick work is an achievement to be sure. I'm just saying this hammer
   is probably not what you wanted to fix your screw.)
 
-  **Turns out the 'folded' calls of some transpiling languages is pretty similar to what you can get with `yield`.**
+  Iced CoffeeScript introduces two new keywords, `await` and `defer`, that, used in concert, allow to write
+  quite succinct constructs.
 
-* **Native Language Extensions** (that modify NodeJS or another VM), e.g. Iced Coffee Script. Interesting
+  Turns out the 'folded' calls of some transpiling languages is pretty similar to what you can get with
+  `yield`.
+
+* **Native Language Extensions** (that modify NodeJS or another VM), e.g. XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.
+  Interesting
   and certainly potentially able to provide the most powerful solutions to the asynchronous conondrum. But:
   unless ideas tested and proven by such projects enter the mainstream (read: become part of ES), they won't
   fly (far). Platform fragmentation has and will be one difficult aspect of JavaScript, and more
