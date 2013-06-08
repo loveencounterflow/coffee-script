@@ -51,6 +51,7 @@ log counting_generator.next()   # prints: { value: 1, done: false }
 log counting_generator.next()   # prints: { value: 2, done: false }
 log counting_generator.next()   # prints: { value: 3, done: false }
 log counting_generator.next()   # prints: { value: undefined, done: true }
+log counting_generator.next()   # throws an error saying "Generator has already finished"
 
 ```
 
@@ -58,65 +59,58 @@ log counting_generator.next()   # prints: { value: undefined, done: true }
 > `StopIteration` exception to signal the generator has run to completion; because of [concerns over
 > efficiency and correctness in a fundamentally asynchronous language like
 > JavaScript](https://github.com/rwldrn/tc39-notes/blob/master/es6/2013-03/mar-12.md#412-stopiterationgenerator),
-> the consensus among developers is that yielding an object with members `value` and `done` is better.)*
+> the consensus among developers is that yielding an object with members `value` and `done` is better.
+> In CoffeeScript this is easy dealt with using `{ value, done } = g.next()`.)*
 
-Th
+So what happens here is essentially that the generator will, on the first call to `g.next()`, do whatever
+the function definition say, until it hits `yield`. It will return the argument of that `yield`, and suspend
+operation. When `g.next()` is called, it picks up from where it left and run until it hits upon the next
+`yield`; if no more `yield`s are left, an object with `done: true` is returned; from that point on, calling
+`g.next()` will cause an exception.
 
-<!-- ## A Quick Example
+Now let's look at a slightly more interesting example. I'm sure you're already shivering in anticipation how
+one might do Fibonacci numbers with generators. Here's one way:
 
-This is, in a nutshell, what CoffyScript gives you:
+```coffeescript
 
-    # examples/generators.coffy
+walk_fibonacci = ->*
+  a = 1
+  b = 1
+  loop
+    c = a + b
+    return c if c > 1e+20
+    yield c
+    a = b
+    b = c
 
-    log = console.log
+g = walk_fibonacci()
 
-    walk_fibonacci = ->*
-      a = 1
-      b = 1
-      loop
-        c = a + b
-        yield c
-        a = b
-        b = c
+loop
+  { value, done } = g.next()
+  break if done
+  log value
 
-    g = walk_fibonacci()
-    log g.next()
-    log g.next()
-    log g.next()
-    log g.next()
-    log g.next()
-    log g.next()
-    log g.next()
+# will print a list of numbers:
+# 2
+# 3
+# 5
+# 8
+# 13
 
-Now let's run it:
+# ...
 
-    [object Generator]
-    { value: 2, done: false }
-    { value: 3, done: false }
-    { value: 5, done: false }
-    { value: 8, done: false }
-    { value: 13, done: false }
-    { value: 21, done: false }
-    { value: 34, done: false }
+# 19740274219868226000
+# 31940434634990100000
+# 51680708854858330000
+# 83621143489848430000
 
-A normal function will return whatever expression occurs behind the last `return` statement encountered
-when executing the function. Generator functions are different—they always return a generator.
+```
 
-Now generators have a method `next`, which, when called, executes the body of the generator function until
-a `yield` statement is encountered; whatever the value of the expression behind the `yield` statement is
-(in our case `c = a + b`) becomes the return value of the `g.next()` call.
-
-Code execution in the generator function is then suspended (not *terminated*, as would be the case in a
-normal function), preserving the state of the function's scope. If you're still with me: Yes, that's a lot
-like asynchronous code, and it's also a lot like closures.
-
-But why the lucky stiff would you ever want this? Why not build a list of those Fibo numbo-jumbos and return
-that?
-
-'Courseyoucoulddothat. But. What if there are infinitely many of those numbers (and there are)? What if
-each one of them is rather costly to compute (here it's simple)? What if you're not sure just yet how many
-results you will need?
- -->
+This example shows that ① `yield` can be used similar to a list, but without ever building that list (a
+side effect of that: you can build a list with arbitrary many elements, the limitation being *time*
+rather than *space*); ② a `return` statement inside a generator function indicates the last value has just
+been reached (this again is different from Python, where a `return` in a generator function cannot return
+any value).
 
 ## Implementation Status
 
