@@ -111,6 +111,10 @@ f = ->*
   yield 2
   yield 3
 g = f()
-log g.next() is g.next()
+log g.next()
+log g.next()
+log g.next()
+log g.next()
+log g.next()
 
 

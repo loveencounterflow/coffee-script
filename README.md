@@ -32,6 +32,8 @@ maybe 'resumable return' is not so bad after all.
 The simplest example for using generators may be something like this (`log` being a shortcut for
 `console.log` here):
 
+`````javascript
+
     # Using a star after the arrow 'licenses' the use of `yield` in the function body;
     # it basically says: this is not an ordinary function, this is a generator function:
     count = ->*
@@ -43,14 +45,22 @@ The simplest example for using generators may be something like this (`log` bein
     counting_generator = count()
 
     # Now that we have a generator, we can call one of its methods, `next`:
-    log counting_generator.next()
-    # { value: 1, done: false }
+    log counting_generator.next()   # prints: { value: 1, done: false }
+
+    # ...and we can go on doing so until the generator becomes exhausted:
+    log counting_generator.next()   # prints: { value: 2, done: false }
+    log counting_generator.next()   # prints: { value: 3, done: false }
+    log counting_generator.next()   # prints: { value: undefined, done: true }
+
+`````
 
 *(Note: The output you see is somewhat of a specialty of ES6 generators. In Python, generators throw a special
 `StopIteration` exception to signal the generator has run to completion; because of [concerns over
 efficiency and correctness in a fundamentally asynchronous language like
 JavaScript](https://github.com/rwldrn/tc39-notes/blob/master/es6/2013-03/mar-12.md#412-stopiterationgenerator),
 the consensus among developers is that yielding an object with members `value` and `done` is better.)*
+
+Th
 
 <!-- ## A Quick Example
 
