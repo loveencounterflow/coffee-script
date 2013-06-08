@@ -54,11 +54,11 @@ log counting_generator.next()   # prints: { value: undefined, done: true }
 
 ```
 
-*(Note: The output you see is somewhat of a specialty of ES6 generators. In Python, generators throw a special
-`StopIteration` exception to signal the generator has run to completion; because of [concerns over
-efficiency and correctness in a fundamentally asynchronous language like
-JavaScript](https://github.com/rwldrn/tc39-notes/blob/master/es6/2013-03/mar-12.md#412-stopiterationgenerator),
-the consensus among developers is that yielding an object with members `value` and `done` is better.)*
+> *(Note: The output you see is somewhat of a specialty of ES6 generators. In Python, generators throw a special
+> `StopIteration` exception to signal the generator has run to completion; because of [concerns over
+> efficiency and correctness in a fundamentally asynchronous language like
+> JavaScript](https://github.com/rwldrn/tc39-notes/blob/master/es6/2013-03/mar-12.md#412-stopiterationgenerator),
+> the consensus among developers is that yielding an object with members `value` and `done` is better.)*
 
 Th
 
