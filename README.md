@@ -378,6 +378,9 @@ the formulation of suspend / resume functions significantly easier and clearer. 
 the file reading example above, reformulated suspension-style:
 
 ```coffeescript
+
+suspend = require 'suspend'
+
 read_text_file = ( route, handler ) ->
   ### A run-of-the-mill asynchronous file reading function; `handler` should be a NodeJS-compliant callback
   function that expects to be called with `( error, data )` on completion. ###
@@ -393,15 +396,63 @@ read_text_file = ( route, handler ) ->
 #                          asynchronous callback
 #        ↓                           ↓
 test_read_text_file = suspend ( resume ) ->*
-  ### The consumer of the `read_text_file` function defined above. It is defin ###
+  ### The consumer of `read_text_file`, above. It is defined by 'decorating' a generator function (which
+  accepts a single argument, `resume`) with `suspend`. When calling a NodeJS-compliant
+  asynchronous function, we simple call that function with `resume`as callback, prepend the call with
+  a `yield` statement, and upon completion we'll get a pair `[ error, data, ]` back from `yield`.
+  We can than proceed to dealing with an error or further process the data. ###
   [ error
     text  ] = yield read_text_file __filename, resume
   throw error if error?
   log "read #{text.length} characters"
 
 test_read_text_file()
-
 ```
+
+Now `suspend` returns a function, but does not execute it; this is what the call on the last line does. In
+many cases, you will want to pass in some arguments to your generator. To make this easier, we define a
+`step` decorator that does what `suspend` does, and immediately calls the result. Thus:
+
+```coffeescript
+step = ( stepper ) ->
+  R = suspend stepper
+  return R()
+
+test_read_text_file = ( route ) ->
+  # Consider to use `=>*` below in order to keep the `this` / `@` context.
+  return step ( resume ) ->*
+    [ error
+      text  ] = yield read_text_file route, resume
+    throw error if error?
+    log "read #{text.length} characters"
+
+test_read_text_file __filename
+```
+
+It's really amazing how clear this syntax is once you've removed callbacks and got used to the semantics of
+`yield`. jmar777 remarks that instead of building a full-fledged asynchronous helper libraries with all the
+bells and whistles, he'd rather stick with the minimalist approach and keep `suspend` small for the time
+being; he recommends using `async` for higher-order asynchronous chores. i can only second that sentiment.
+
+Still, it is fun and quite instructive to see how the most recurrent asynchronous chores can be formulated
+using nothing but `yield`, `suspend`, and `resume`, so this is what i want to do next.
+
+First, let's define our magic workhorse number cruncher—a function that promises to deliver the result of `n
+* 2` at some time in the future. It also prints to the command line so we get a feel for what's going on
+behind the scenes:
+
+```coffeescript
+double = ( n, handler ) ->
+  after Math.random(), ->
+    Z = n * 2
+    log "double: #{n} -> #{Z}"
+    handler null, Z
+```
+
+
+
+
+
 
 
 ## Implementation Status

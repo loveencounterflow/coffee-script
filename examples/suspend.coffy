@@ -53,13 +53,40 @@ walk_and_talk = ( resume ) ->*
 #===========================================================================================================
 # EX.: USING ASYNCHRONOUS METHODS WITH CALLBACKS
 #-----------------------------------------------------------------------------------------------------------
-read_file = suspend ( resume ) ->*
-  ### Asynchronous file-reading example. ###
-  [ error
-    text  ] = yield njs_fs.readFile __filename, 'utf-8', resume
-  throw error if error?
-  log "read #{text.length} chrs"
+read_text_file = ( route, handler ) ->
+  ### A run-of-the-mill asynchronous file reading function; `handler` should be a NodeJS-compliant callback
+  function that expects to be called with `( error, data )` on completion. ###
+  ( require 'fs' ).readFile __filename, 'utf-8', ( error, text ) ->
+    if error?
+      handler error
+    else
+      handler null, text
 
+#-----------------------------------------------------------------------------------------------------------
+#                         argument to `suspend`:
+# result of calling       generator function that
+#     `suspend`           accepts `resume` as its
+#                          asynchronous callback
+#        ↓                           ↓
+test_read_text_file_with_suspend = suspend ( resume ) ->*
+  ### The consumer of the `read_text_file` function defined above. It is defined by 'decorating' a
+  generator function that accepts a `resume` argument with `suspend`. When calling a NodeJS-compliant
+  asynchronous function, we simple call that function with `resume`as callback, prepend the call with
+  a `yield` statement, and upon completion we'll get a pair `[ error, data, ]` back from `yield`.
+  We can than proceed to dealing with an error or further process the data. ###
+  [ error
+    text  ] = yield read_text_file __filename, resume
+  throw error if error?
+  log "read #{text.length} characters"
+
+#-----------------------------------------------------------------------------------------------------------
+test_read_text_file_with_step = ( route ) ->
+  ### Same as `test_read_text_file_with_suspend`, but acutally executing the call. ###
+  return step ( resume ) =>*
+    [ error
+      text  ] = yield read_text_file route, resume
+    throw error if error?
+    log "read #{text.length} characters"
 
 #-----------------------------------------------------------------------------------------------------------
 double = ( n, handler ) ->
@@ -158,23 +185,7 @@ test_sorted_parallel = ->
 # step walk_and_talk
 # ( suspend read_file )()
 # test_sorted_parallel()
-
-read_text_file = ( route, handler ) ->
-  ### A run-of-the-mill asynchronous file reading function; `handler` should be a NodeJS-compliant callback
-  function that expects to be called with `( error, data )` on completion. ###
-  ( require 'fs' ).readFile __filename, 'utf-8', ( error, text ) ->
-    if error?
-      handler error
-    else
-      handler null, text
-
-#-----------------------------------------------------------------------------------------------------------
-test_read_text_file = suspend ( resume ) ->*
-  [ error
-    text  ] = yield read_text_file __filename, resume
-  throw error if error?
-  log "read #{text.length} characters"
-
-test_read_text_file()
+# test_read_text_file_with_suspend()
+test_read_text_file_with_step __filename
 
 
