@@ -1,4 +1,6 @@
 
+* auto-gen TOC:
+{:toc}
 
 
 # CoffyScript
@@ -241,7 +243,7 @@ can 'talk' to your generator, as it were, telling it what to do.
 > `undefined`, or you'll get an error.
 
 
-### How Not to Yield to Callback Hell
+## How Not to Yield to Callback Hell: Serializing Control Flow
 
 Now that we've got all the pieces together, let's have a look at how `yield` is great for dealing with
 asynchronous programming.
@@ -288,7 +290,36 @@ stepper_with_timeouts = ->*
 g = stepper_with_timeouts()
 g.next()
 
+# prints:
+# after
+# (one second pause)
+# a
+# (one second pause)
+# long
+# (one second pause)
+# time
 ```
+
+To really appreciate how great this is, recall that `setTimeout()` (and, therefore, `after()`) is a truly
+asynchronous function—unlike the blocking `time.sleep()` you get with a language like Python. This means
+that while the last script is running, you could very well be doing some other stuff during the breaks,
+which you can't when using a blocking `sleep()` function. And unlike a so-called 'busy loop'—basically
+`while time() < t1...`—CPU load will be near zero while the program is doing nothing. And still we have
+managed to arrange our stuff in a linear fashion; without `yield`, we would've been forced to write that
+stuff like
+
+```coffeescript
+log "after"
+after 1, ->
+  log "a"
+  after 1, ->
+    log "long"
+    after 1, ->
+      log "time"
+```
+
+invoking the Pyramid of Doom, or using promises or events or an asynchronous library.
+
 
 ## Implementation Status
 

@@ -136,6 +136,6 @@ stepper_with_timeouts_2 = ->
 # fibonacci()
 # fibonacci_with_throw()
 # fibonacci_with_send()
-stepper_with_timeouts_1()
-# stepper_with_timeouts_2()
+# stepper_with_timeouts_1()
+stepper_with_timeouts_2()
 
