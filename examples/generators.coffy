@@ -10,6 +10,21 @@ njs_util                  = require 'util'
 log                       = console.log
 rpr                       = njs_util.inspect
 
+#===========================================================================================================
+# HELPERS
+#-----------------------------------------------------------------------------------------------------------
+after = ( time_s, handler ) ->
+  ### `after` is a thin shim around `setTimeout` that adheres to NodeJS conventions, taking a `handler`
+  callback function as last argument. Also, the timeout is given in humane seconds rather than in ms. ###
+  setTimeout handler, time_s * 1000
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+eventually = ( handler ) ->
+  ### `eventually f` is just another name for `process.nextTick f`—which in turn is basically equivalent to
+  `after 0, f`. ###
+  return process.nextTick handler
+
 
 ### TAINT not a test suite just yet, just an example ###
 
@@ -30,7 +45,6 @@ fibonacci = ->
   loop
     { value, done } = g.next()
     break if done
-    g.throw "144!!!!" if value is 144
     log value
 
 #-----------------------------------------------------------------------------------------------------------
@@ -63,9 +77,65 @@ fibonacci_with_throw = ->
       break
     log value
 
+#-----------------------------------------------------------------------------------------------------------
+fibonacci_with_send = ->
+  walk_fibonacci = ( a, b ) ->*
+    initial_a = a ?= 1
+    initial_b = b ?= 1
+    loop
+      c = a + b
+      r = yield c
+      if r
+        a = initial_a
+        b = initial_b
+      else
+        a = b
+        b = c
+
+  g       = walk_fibonacci 220, -1
+  restart = undefined
+
+  for idx in [ 0 ... 100 ]
+    { value, done } = g.send restart
+    restart         = value > 100
+    break if done
+    log value
+
+#-----------------------------------------------------------------------------------------------------------
+stepper_with_timeouts_1 = ->
+  stepper_with_timeouts = ->*
+    log "after"
+    yield after 1, -> log '1'
+    log "a"
+
+  g = stepper_with_timeouts()
+  g.next()
+  # g.next()
+
+#-----------------------------------------------------------------------------------------------------------
+stepper_with_timeouts_2 = ->
+
+  resume = ->
+    g.next()
+
+  stepper_with_timeouts = ->*
+    log "after"
+    yield after 1, resume
+    log "a"
+    yield after 1, resume
+    log "long"
+    yield after 1, resume
+    log "time"
+
+  g = stepper_with_timeouts()
+  g.next()
+
+
 
 ############################################################################################################
 # fibonacci()
-fibonacci_with_throw()
-
+# fibonacci_with_throw()
+# fibonacci_with_send()
+stepper_with_timeouts_1()
+# stepper_with_timeouts_2()
 

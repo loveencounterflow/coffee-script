@@ -57,7 +57,7 @@ log counting_generator.next()   # throws an error saying "Generator has already 
 
 ```
 
-> *(Note: The output you see is somewhat of a specialty of ES6 generators. In Python, generators throw a special
+> *(Note: The output you see is somewhat of a peculiarity of ES6 generators. In Python, generators throw a special
 > `StopIteration` exception to signal the generator has run to completion; because of [concerns over
 > efficiency and correctness in a fundamentally asynchronous language like
 > JavaScript](https://github.com/rwldrn/tc39-notes/blob/master/es6/2013-03/mar-12.md#412-stopiterationgenerator),
@@ -65,10 +65,10 @@ log counting_generator.next()   # throws an error saying "Generator has already 
 > In CoffeeScript this is easily dealt with using `{ value, done } = g.next()`.)*
 
 So what happens here is essentially that the generator will, on the first call to `g.next()`, do whatever
-the function definition say, until it hits `yield`. It will return the argument of that `yield`, and suspend
-operation. When `g.next()` is called, it picks up from where it left and run until it hits upon the next
-`yield`; if no more `yield`s are left, an object with `done: true` is returned; from that point on, calling
-`g.next()` will cause an exception.
+the function definition say, until it hits `yield`. It will return the argument of that `yield` (inside  a
+custom-made object), and suspend operation. When `g.next()` is called another time, the generator picks up
+from where it left and runs until it hits upon the next `yield`. When no more `yield`s are left, an object
+with `done: true` is returned; from that point on, calling `g.next()` will cause an exception.
 
 ### Endless Loops
 
@@ -114,15 +114,15 @@ loop
 
 This example shows that:
 
-**①** `yield` can be used similar to a list, but without ever building that list, so
-you can build a list with arbitrary many elements, the limitation being *time*
-rather than *space*—a use case for this is reading huge files as streams, segmenting them into lines, and
-then yielding those lines to a processor. Stuff like this will become much more palatable once NodeJS
-implements true iteration using `for x of g` statements.
+* a generator can be used similar to a function that returns a list, but without ever building that list, so
+  you can build a list with arbitrary many elements, the limitation being *time*
+  rather than *space*—a use case for this is reading huge files as streams, segmenting them into lines, and
+  then yielding those lines to a processor. Stuff like this will become much more palatable once NodeJS
+  implements true iteration using something like `for x in/of g` constructs.
 
-② A `return` statement inside a generator function indicates the last value has just
-been reached (this again is different from Python, where a `return` in a generator function cannot return
-any value).
+* A `return` statement inside a generator function indicates the last value has just
+  been reached (this again is different from Python, where a `return` in a generator function cannot return
+  any value).
 
 ### Throwing Errors
 
@@ -185,8 +185,93 @@ documented by the log messages.
 ### Sending Values
 
 Now we get to the point where we examine the single most exciting gem—what might well turn out to be the
-future of asynchronous programming in JavaScript, and that is **sending values into a generator**.
+future of asynchronous programming in JavaScript, and that is **sending values into a generator**. To get a
+feel for this feature, let's rewrite our Fibonacci example a bit:
 
+```coffeescript
+fibonacci_with_send = ->
+  walk_fibonacci = ( a, b ) ->*
+    initial_a = a ?= 1
+    initial_b = b ?= 1
+    loop
+      c = a + b
+      r = yield c
+      if r
+        a = initial_a
+        b = initial_b
+      else
+        a = b
+        b = c
+
+  g       = walk_fibonacci 3, 1
+  restart = undefined
+
+  for idx in [ 0 ... 100 ]
+    { value, done } = g.send restart
+    restart         = value > 100
+    break if done
+    log value
+
+# prints
+# 4
+# 5
+# 9
+# 14
+# 23
+# 37
+# 60
+# 97
+# 157
+# 4
+# 5
+# 9
+# 14
+# 23
+# 37
+# 60
+# ...
+```
+
+Here we have a generalized Fibonacci function that not only accepts two numbers as seed, it also checks
+whether the consumer sent in a truthy value to indicate the sequence should start over. In essence, you
+can 'talk' to your generator, as it were, telling it what to do.
+
+### How Not to Yield to Callback Hell
+
+Now that we've got all the pieces together, let's have a look at how `yield` is great for dealing with
+asynchronous programming.
+
+```coffeescript
+stepper_with_timeouts = ->*
+  log "after"
+  yield after 1, -> log '1'
+  log "a"
+  yield after 1, -> log '2'
+
+g = stepper_with_timeouts()
+g.next()
+```
+
+
+
+```coffeescript
+
+resume = ->
+  g.next()
+
+stepper_with_timeouts = ->*
+  log "after"
+  yield after 1, resume
+  log "a"
+  yield after 1, resume
+  log "long"
+  yield after 1, resume
+  log "time"
+
+g = stepper_with_timeouts()
+g.next()
+
+```
 
 ## Implementation Status
 
