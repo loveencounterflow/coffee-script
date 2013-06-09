@@ -437,9 +437,9 @@ being; he recommends using `async` for higher-order asynchronous chores. i can o
 Still, it is fun and quite instructive to see how the most recurrent asynchronous chores can be formulated
 using nothing but `yield`, `suspend`, and `resume`, so this is what i want to do next.
 
-First, let's define our magic workhorse number cruncher—a function that promises to deliver the result of
-`n * 2` at some time in the future. It also prints to the command line so we get a feel for what's going on
-behind the scenes:
+First, let's define our magic workhorse—a function that promises to deliver the result of `n * 2` at some
+time in the future. It also prints to the command line so we get a feel for what's going on behind the
+scenes:
 
 ```coffeescript
 double = ( n, handler ) ->
@@ -449,11 +449,72 @@ double = ( n, handler ) ->
     handler null, Z
 ```
 
+We've already seen that `yield` lends itself to serialization, so let's start with just that: We want a
+function that takes a start value, a stop value and a handler; we'll step over all the numbers one by one,
+and on completion call the handler with the result. Since each happens in an asynchronous fashion and may
+take anywhere between zero and one seconds to complete, we'll have to serialize the calls so the result list
+keeps the correct order. this turns out to be fairly simple:
 
+```coffeescript
+double_numbers_in_serial = ( n0, n1, handler ) ->
+  Z = []
+  step ( resume ) ->*
+    for i in [ n0 .. n1 ]
+      [ error
+        result ] = yield double i, resume
+      handler error if error?
+      Z.push result
+    handler null, Z
+```
 
+...and that's it!
 
+Now it so turns out that computing our list of numbers in a serialized manner is not the most efficient
+way—after all, each call takes a half second on average and leaves the CPU rather idle for that accumulated
+time. If we could do that in a more parallelized manner, that would be great. And we can:
 
+```coffeescript
+double_numbers_in_parallel = ( n0, n1, handler ) ->
+  Z                 = []
+  active_call_count = 0
+  for i in [ n0 .. n1 ]
+    active_call_count += 1
+    step ( resume ) ->*
+      [ error
+        result ] = yield double i, resume
+      active_call_count -= 1
+      handler error if error?
+      Z.push result
+      handler null, Z if active_call_count is 0
+  return null
+```
 
+Things do get a tad more complicated as we have to keep track of how many calls are still unfinished. On the
+bright side, the average time to compute a list of, say, a hundred numbers has just come down from 50
+seconds to about a half second. On the other hand, our list is just mumbo-jumbo numbos, the result being
+randomly distributed over the results list. However, it's not really difficult to remedy that without any
+sacrifice in terms of efficiency:
+
+```coffeescript
+double_numbers_in_sorted_parallel = ( n0, n1, handler ) ->
+  Z                 = []
+  active_call_count = 0
+  for i in [ n0 .. n1 ]
+    idx                 = active_call_count
+    active_call_count  += 1
+    do ( idx ) ->
+      step ( resume ) ->*
+        [ error
+          result ] = yield double i, resume
+        active_call_count -= 1
+        handler error if error?
+        Z[ idx ] = result
+        handler null, Z if active_call_count is 0
+  return null
+```
+
+All we have to do is remembering the index where each result has to land; we can easily accomplish that by
+using a CoffeeScript `do () ->` closure.
 
 ## Implementation Status
 
