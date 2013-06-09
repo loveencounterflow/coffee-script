@@ -32,10 +32,10 @@ to write serialized asynchronous function calls.
   - [Throwing Errors](#throwing-errors)
   - [Sending Values](#sending-values)
 - [How Not to Yield to Callback Hell: Serializing Control Flow](#how-not-to-yield-to-callback-hell-serializing-control-flow)
+- [Suspension](#suspension)
 - [Implementation Status](#implementation-status)
 - [Syntax](#syntax)
-- [Suspension](#suspension)
-- [Asynchronicity & How to Cope with it](#asynchronicity--how-to-cope-with-it)
+- [Asynchronicity & How to Cope with it: the Alternatives](#asynchronicity--how-to-cope-with-it-the-alternatives)
 
 > *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
@@ -83,7 +83,7 @@ log counting_generator.next()   # throws an error saying "Generator has already 
 > In CoffeeScript this is easily dealt with using `{ value, done } = g.next()`.)*
 
 So what happens here is essentially that the generator will, on the first call to `g.next()`, do whatever
-the function definition say, until it hits `yield`. It will return the argument of that `yield` (inside  a
+the function definition says, until it hits `yield`. It will return the argument of that `yield` (inside  a
 custom-made object), and suspend operation. When `g.next()` is called another time, the generator picks up
 from where it left and runs until it hits upon the next `yield`. When no more `yield`s are left, an object
 with `done: true` is returned; from that point on, calling `g.next()` will cause an exception.
@@ -126,7 +126,7 @@ loop
 # 51680708854858330000
 # 83621143489848430000
 
-# ...and stop there as the next value would be larger than the limit we set.
+# ...and stop there as the next value would be larger than the limit we've set.
 
 ```
 
@@ -149,34 +149,33 @@ the easiest:
 
 ```coffeescript
 
-fibonacci_with_throw = ->
-  walk_fibonacci = ->*
-    a = 1
-    b = 1
-    loop
-      try
-        c = a + b
-        return c if c > 1e+20
-        yield c
-        a = b
-        b = c
-      catch error
-        log 'CAUGHT ERROR IN GENERATOR:', error
-        return "it's over!"
-
-  g = walk_fibonacci()
-
+walk_fibonacci = ->*
+  a = 1
+  b = 1
   loop
-    { value, done } = g.next()
-    if done
-      log 'terminated'
-      break
-    { value, done } = g.throw new Error "144!!!!" if value is 144
-    if done
-      log 'received value:', rpr value
-      log 'aborted'
-      break
-    log value
+    try
+      c = a + b
+      return c if c > 1e+20
+      yield c
+      a = b
+      b = c
+    catch error
+      log 'CAUGHT ERROR IN GENERATOR:', error
+      return "it's over!"
+
+g = walk_fibonacci()
+
+loop
+  { value, done } = g.next()
+  if done
+    log 'terminated'
+    break
+  { value, done } = g.throw new Error "144!!!!" if value is 144
+  if done
+    log 'received value:', rpr value
+    log 'aborted'
+    break
+  log value
 
 # prints:
 # 2
@@ -207,28 +206,33 @@ future of asynchronous programming in JavaScript, and that is **sending values i
 feel for this feature, let's rewrite our Fibonacci example a bit:
 
 ```coffeescript
-fibonacci_with_send = ->
-  walk_fibonacci = ( a, b ) ->*
-    initial_a = a ?= 1
-    initial_b = b ?= 1
-    loop
-      c = a + b
-      r = yield c
-      if r
-        a = initial_a
-        b = initial_b
-      else
-        a = b
-        b = c
+walk_fibonacci = ( a, b ) ->*
+  initial_a = a ?= 1
+  initial_b = b ?= 1
+  loop
+    c = a + b
 
-  g       = walk_fibonacci 3, 1
-  restart = undefined
+    # This `yield` works in two ways: it gives a value *to* the caller
+    # and receives a value back *from* the caller:
+    r = yield c
 
-  for idx in [ 0 ... 100 ]
-    { value, done } = g.send restart
-    restart         = value > 100
-    break if done
-    log value
+    # Our protocol is very simple—resume Fibo sequence if `r` is truthy,
+    # proceed normally otherwise:
+    if r
+      a = initial_a
+      b = initial_b
+    else
+      a = b
+      b = c
+
+g       = walk_fibonacci 3, 1
+restart = undefined
+
+for idx in [ 0 ... 100 ]
+  { value, done } = g.send restart
+  restart         = value > 100
+  break if done
+  log value
 
 # prints
 # 4
@@ -318,9 +322,9 @@ g.next()
 
 To really appreciate how great this is, recall that `setTimeout()` (and, therefore, `after()`) is a truly
 asynchronous function—unlike the blocking `time.sleep()` you get with a language like Python. This means
-that while the last script is running, you could very well be doing some other stuff during the breaks,
+that while the script is running, you could very well be doing some other stuff during the breaks,
 which you can't when using a blocking `sleep()` function. And unlike a so-called 'busy loop'—basically
-`while time() < t1...`—CPU load will be near zero while the program is doing nothing. And still we have
+`while time() < t1...`—CPU load will be near zero while the program is waiting. And still we have
 managed to arrange our stuff in a linear fashion; without `yield`, we would've been forced to write that
 stuff like
 
@@ -337,8 +341,8 @@ after 1, ->
 invoking the Pyramid of Doom, or using promises or events or an asynchronous library.
 
 There's one single thing we have to accomplish yet: how to get back a value from an asynchronous call?
-Well, as we've seen above, `g.next()` is really just `g.send value`, so we can easily update the stepper
-code:
+Well, as we've seen above, `g.next()` is really just `g.send value`, so we can easily update the previous
+example. Let's do something different now and read a file asynchronously:
 
 ```coffeescript
 read_file = ( route, handler ) ->
@@ -353,7 +357,7 @@ resume = ( error, data ) ->
 
 log_character_count = ( route ) ->*
   ### Given a `route`, retrieve the text of that file and print out its character count. ###
-  [ error, text ]= yield read_file route, resume
+  [ error, text ] = yield read_file route, resume
   log "file #{__filename} is #{text.length} characters long."
 
 g = log_character_count __filename

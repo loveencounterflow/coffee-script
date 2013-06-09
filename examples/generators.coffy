@@ -92,7 +92,7 @@ fibonacci_with_send = ->
         a = b
         b = c
 
-  g       = walk_fibonacci 220, -1
+  g       = walk_fibonacci 3, 1
   restart = undefined
 
   for idx in [ 0 ... 100 ]
@@ -145,7 +145,7 @@ read_a_file = ->
 
   log_character_count = ( route ) ->*
     ### Given a `route`, retrieve the text of that file and print out its character count. ###
-    [ error, text ]= yield read_file route, resume
+    [ error, text ] = yield read_file route, resume
     log "file #{__filename} is #{text.length} characters long."
 
   g = log_character_count __filename
@@ -156,8 +156,8 @@ read_a_file = ->
 ############################################################################################################
 # fibonacci()
 # fibonacci_with_throw()
-# fibonacci_with_send()
+fibonacci_with_send()
 # stepper_with_timeouts_1()
 # stepper_with_timeouts_2()
-read_a_file()
+# read_a_file()
 
