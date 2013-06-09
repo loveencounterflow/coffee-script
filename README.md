@@ -371,8 +371,8 @@ the event loop, suspending and resuming from one line to the next!
 ## Suspension
 
 In the previous section i demonstrated how simple it is to use `yield` and `g.send()` to build **code that
-suspends and resumes**. It gets even better tho when you use a library for that generator-building stuff,
-and [suspend by Jeremy Martin (jmar777)](https://github.com/jmar777/suspend) is exactly such a brilliant
+suspends and resumes**. It gets even better though when you use a library for that generator-building stuff,
+and [`suspend` by Jeremy Martin (jmar777)](https://github.com/jmar777/suspend) is exactly such a brilliant
 piece of code. Exporting a single function that weighs in at a mere 16 lines of JavaScript, `suspend` makes
 the formulation of suspend / resume functions significantly easier and clearer. Let's take another look at
 the file reading example above, reformulated suspension-style:
