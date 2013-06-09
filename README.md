@@ -236,23 +236,40 @@ Here we have a generalized Fibonacci function that not only accepts two numbers 
 whether the consumer sent in a truthy value to indicate the sequence should start over. In essence, you
 can 'talk' to your generator, as it were, telling it what to do.
 
+> We send in `undefined` when we first call `g.send()`. The reason is that **(1)** `g.next()` is actually
+> implemented as `g.send undefined`, and **(2)** to initialize a generator, you must not send anything but
+> `undefined`, or you'll get an error.
+
+
 ### How Not to Yield to Callback Hell
 
 Now that we've got all the pieces together, let's have a look at how `yield` is great for dealing with
 asynchronous programming.
 
+In the following code, `after` is just a friendly rewrite of `setTimeout`, JavaScript's most generic means
+for asynchronous programming: it takes a time expressed as number of seconds and a callback; it will call
+the callback at some time in the future when at least as many seconds have passed; in the meantime, the
+current code context is run to completion. Now look at this code
+fragment:
+
 ```coffeescript
 stepper_with_timeouts = ->*
-  log "after"
+  log "A"
   yield after 1, -> log '1'
-  log "a"
+  log "B"
   yield after 1, -> log '2'
 
 g = stepper_with_timeouts()
 g.next()
 ```
 
+We first retrieve the generator, then call `g.next()` on it. Of course what happens is that we immediately
+get printed out `A`, and, after a delay of one second, a `1` appears on the console. We never get to see
+`B`, because there's no second call to `g.next()`. Now the idea is that if we could make it so that the next
+call to `g.next()` happens when the scheduled callback occurs ... we'd effectively implemented `sleep()` in
+JavaScript, a language that never had such a construct.
 
+And this is how we might be doing that, with very simple means:
 
 ```coffeescript
 
