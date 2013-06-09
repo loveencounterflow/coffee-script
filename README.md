@@ -1,7 +1,18 @@
 
-* auto-gen TOC:
-{:toc}
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
+- [CoffyScript](#coffyscript)
+  - [...is CoffeeScript with Yield❗](#is-coffeescript-with-yield)
+  - [So what is this Yield All About?](#so-what-is-this-yield-all-about)
+    - [Minimal Example](#minimal-example)
+    - [Endless Loops](#endless-loops)
+    - [Throwing Errors](#throwing-errors)
+    - [Sending Values](#sending-values)
+  - [How Not to Yield to Callback Hell: Serializing Control Flow](#how-not-to-yield-to-callback-hell-serializing-control-flow)
+  - [Implementation Status](#implementation-status)
+  - [Syntax](#syntax)
+  - [Suspension](#suspension)
+  - [Asynchronicity & How to Cope with it](#asynchronicity--how-to-cope-with-it)
 
 # CoffyScript
 
