@@ -53,10 +53,10 @@ walk_and_talk = ( resume ) ->*
 #===========================================================================================================
 # EX.: USING ASYNCHRONOUS METHODS WITH CALLBACKS
 #-----------------------------------------------------------------------------------------------------------
-read_file = ( handler ) ->*
+read_file = suspend ( resume ) ->*
   ### Asynchronous file-reading example. ###
   [ error
-    text  ] = yield njs_fs.readFile __filename, 'utf-8', handler
+    text  ] = yield njs_fs.readFile __filename, 'utf-8', resume
   throw error if error?
   log "read #{text.length} chrs"
 
@@ -157,6 +157,24 @@ test_sorted_parallel = ->
 # test_parallel()
 # step walk_and_talk
 # ( suspend read_file )()
-test_sorted_parallel()
+# test_sorted_parallel()
+
+read_text_file = ( route, handler ) ->
+  ### A run-of-the-mill asynchronous file reading function; `handler` should be a NodeJS-compliant callback
+  function that expects to be called with `( error, data )` on completion. ###
+  ( require 'fs' ).readFile __filename, 'utf-8', ( error, text ) ->
+    if error?
+      handler error
+    else
+      handler null, text
+
+#-----------------------------------------------------------------------------------------------------------
+test_read_text_file = suspend ( resume ) ->*
+  [ error
+    text  ] = yield read_text_file __filename, resume
+  throw error if error?
+  log "read #{text.length} characters"
+
+test_read_text_file()
 
 

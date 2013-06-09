@@ -370,17 +370,38 @@ the event loop, suspending and resuming from one line to the next!
 
 ## Suspension
 
-[suspend](https://github.com/jmar777/suspend) is a great little library that provides a single
-function, `suspend`, to make working with `yield` and asynchronous functions just a bit easier. Suppose you
-have a method to read a file and do something with that data:
+In the previous section i demonstrated how simple it is to use `yield` and `g.send()` to build **code that
+suspends and resumes**. It gets even better tho when you use a library for that generator-building stuff,
+and [suspend by Jeremy Martin (jmar777)](https://github.com/jmar777/suspend) is exactly such a brilliant
+piece of code. Exporting a single function that weighs in at a mere 16 lines of JavaScript, `suspend` makes
+the formulation of suspend / resume functions significantly easier and clearer. Let's take another look at
+the file reading example above, reformulated suspension-style:
 
-    read_file = ( handler ) ->*
-      [ error
-        text  ] = yield njs_fs.readFile __filename, 'utf-8', handler
-      throw error if error?
-      log "read #{text.length} chrs"
+```coffeescript
+read_text_file = ( route, handler ) ->
+  ### A run-of-the-mill asynchronous file reading function; `handler` should be a NodeJS-compliant callback
+  function that expects to be called with `( error, data )` on completion. ###
+  ( require 'fs' ).readFile __filename, 'utf-8', ( error, text ) ->
+    if error?
+      handler error
+    else
+      handler null, text
 
-have a look at `examples/suspend.coffy`
+#                         argument to `suspend`:
+# result of calling       generator function that
+#     `suspend`           accepts `resume` as its
+#                          asynchronous callback
+#        ↓                           ↓
+test_read_text_file = suspend ( resume ) ->*
+  ### The consumer of the `read_text_file` function defined above. It is defin ###
+  [ error
+    text  ] = yield read_text_file __filename, resume
+  throw error if error?
+  log "read #{text.length} characters"
+
+test_read_text_file()
+
+```
 
 
 ## Implementation Status
@@ -420,7 +441,7 @@ version of NodeJS); just remember that when 'yield' occurs in an error message, 
 thing to check.
 
 
-## Asynchronicity & How to Cope with it: the Alternatives
+## Asynchronicity & How to Cope With It: the Alternatives
 
 `yield` really starts to shine for a lot of use cases with full language support, such as what you get in
 Python. Specifically, there are on the one hand lots and lots of builts-ins / standard library functions
