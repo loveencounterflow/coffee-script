@@ -437,8 +437,8 @@ being; he recommends using `async` for higher-order asynchronous chores. i can o
 Still, it is fun and quite instructive to see how the most recurrent asynchronous chores can be formulated
 using nothing but `yield`, `suspend`, and `resume`, so this is what i want to do next.
 
-First, let's define our magic workhorse number cruncher—a function that promises to deliver the result of `n
-* 2` at some time in the future. It also prints to the command line so we get a feel for what's going on
+First, let's define our magic workhorse number cruncher—a function that promises to deliver the result of
+`n * 2` at some time in the future. It also prints to the command line so we get a feel for what's going on
 behind the scenes:
 
 ```coffeescript
