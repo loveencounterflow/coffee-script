@@ -1,20 +1,4 @@
 
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
-
-- [CoffyScript](#coffyscript)
-  - [...is CoffeeScript with Yield❗](#is-coffeescript-with-yield)
-  - [TL;DR](#tl-dr)
-  - [So What is this Yield All About?](#so-what-is-this-yield-all-about)
-    - [Minimal Example](#minimal-example)
-    - [Endless Loops](#endless-loops)
-    - [Throwing Errors](#throwing-errors)
-    - [Sending Values](#sending-values)
-  - [How Not to Yield to Callback Hell: Serializing Control Flow](#how-not-to-yield-to-callback-hell-serializing-control-flow)
-  - [Implementation Status](#implementation-status)
-  - [Syntax](#syntax)
-  - [Suspension](#suspension)
-  - [Asynchronicity & How to Cope with it](#asynchronicity--how-to-cope-with-it)
-
 # CoffyScript
 
 ## ...is CoffeeScript with Yield❗
@@ -39,6 +23,21 @@ JavaScript engine).
 
 The impatient may want to scroll down to the section on [Suspension](#suspension), where i demonstrate how
 to write serialized asynchronous function calls.
+
+**Table of Contents**
+
+- [So What is this Yield All About?](#so-what-is-this-yield-all-about)
+  - [Minimal Example](#minimal-example)
+  - [Endless Loops](#endless-loops)
+  - [Throwing Errors](#throwing-errors)
+  - [Sending Values](#sending-values)
+- [How Not to Yield to Callback Hell: Serializing Control Flow](#how-not-to-yield-to-callback-hell-serializing-control-flow)
+- [Implementation Status](#implementation-status)
+- [Syntax](#syntax)
+- [Suspension](#suspension)
+- [Asynchronicity & How to Cope with it](#asynchronicity--how-to-cope-with-it)
+
+> *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
 ## So What is this Yield All About?
 
@@ -337,6 +336,48 @@ after 1, ->
 
 invoking the Pyramid of Doom, or using promises or events or an asynchronous library.
 
+There's one single thing we have to accomplish yet: how to get back a value from an asynchronous call?
+Well, as we've seen above, `g.next()` is really just `g.send value`, so we can easily update the stepper
+code:
+
+```coffeescript
+read_file = ( route, handler ) ->
+  ### Given the location of a file, read and decode it using UTF-8, then call the handler
+  as `handler error, data`. ###
+  ( require 'fs' ).readFile __filename, 'utf-8', handler
+  return null
+
+resume = ( error, data ) ->
+  ### Send results to generator. ###
+  g.send [ error, data, ]
+
+log_character_count = ( route ) ->*
+  ### Given a `route`, retrieve the text of that file and print out its character count. ###
+  [ error, text ]= yield read_file route, resume
+  log "file #{__filename} is #{text.length} characters long."
+
+g = log_character_count __filename
+g.next()
+```
+
+And that's basically it! Using just a little bit of built-in language features, we've managed to deal with
+the event loop, suspending and resuming from one line to the next!
+
+
+## Suspension
+
+[suspend](https://github.com/jmar777/suspend) is a great little library that provides a single
+function, `suspend`, to make working with `yield` and asynchronous functions just a bit easier. Suppose you
+have a method to read a file and do something with that data:
+
+    read_file = ( handler ) ->*
+      [ error
+        text  ] = yield njs_fs.readFile __filename, 'utf-8', handler
+      throw error if error?
+      log "read #{text.length} chrs"
+
+have a look at `examples/suspend.coffy`
+
 
 ## Implementation Status
 
@@ -375,22 +416,7 @@ version of NodeJS); just remember that when 'yield' occurs in an error message, 
 thing to check.
 
 
-## Suspension
-
-[suspend](https://github.com/jmar777/suspend) is a great little library that provides a single
-function, `suspend`, to make working with `yield` and asynchronous functions just a bit easier. Suppose you
-have a method to read a file and do something with that data:
-
-    read_file = ( handler ) ->*
-      [ error
-        text  ] = yield njs_fs.readFile __filename, 'utf-8', handler
-      throw error if error?
-      log "read #{text.length} chrs"
-
-have a look at `examples/suspend.coffy`
-
-
-## Asynchronicity & How to Cope with it
+## Asynchronicity & How to Cope with it: the Alternatives
 
 `yield` really starts to shine for a lot of use cases with full language support, such as what you get in
 Python. Specifically, there are on the one hand lots and lots of builts-ins / standard library functions

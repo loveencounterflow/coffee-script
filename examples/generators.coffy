@@ -130,6 +130,27 @@ stepper_with_timeouts_2 = ->
   g = stepper_with_timeouts()
   g.next()
 
+#-----------------------------------------------------------------------------------------------------------
+read_a_file = ->
+
+  read_file = ( route, handler ) ->
+    ### Given the location of a file, read and decode it using UTF-8, then call the handler
+    as `handler error, data`. ###
+    ( require 'fs' ).readFile __filename, 'utf-8', handler
+    return null
+
+  resume = ( error, data ) ->
+    ### Send results to generator. ###
+    g.send [ error, data, ]
+
+  log_character_count = ( route ) ->*
+    ### Given a `route`, retrieve the text of that file and print out its character count. ###
+    [ error, text ]= yield read_file route, resume
+    log "file #{__filename} is #{text.length} characters long."
+
+  g = log_character_count __filename
+  g.next()
+
 
 
 ############################################################################################################
@@ -137,5 +158,6 @@ stepper_with_timeouts_2 = ->
 # fibonacci_with_throw()
 # fibonacci_with_send()
 # stepper_with_timeouts_1()
-stepper_with_timeouts_2()
+# stepper_with_timeouts_2()
+read_a_file()
 
