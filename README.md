@@ -3,7 +3,8 @@
 
 - [CoffyScript](#coffyscript)
   - [...is CoffeeScript with Yield❗](#is-coffeescript-with-yield)
-  - [So what is this Yield All About?](#so-what-is-this-yield-all-about)
+  - [TL;DR](#tl-dr)
+  - [So What is this Yield All About?](#so-what-is-this-yield-all-about)
     - [Minimal Example](#minimal-example)
     - [Endless Loops](#endless-loops)
     - [Throwing Errors](#throwing-errors)
@@ -34,7 +35,12 @@ which is a shame since it has already landed in NodeJS—which relies on V8, and
 conservative with features (which is understandable when your aim is to build the fastest *and* the most compatible
 JavaScript engine).
 
-## So what is this Yield All About?
+## TL;DR
+
+The impatient may want to scroll down to the section on [Suspension](#suspension), where i demonstrate how
+to write serialized asynchronous function calls.
+
+## So What is this Yield All About?
 
 If you have never programmed with iterators and generators, you may imagine as a 'resumable return' for
 starters. For the more technically oriented,
