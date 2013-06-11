@@ -1,7 +1,8 @@
 {
   "name":         "coffy-script",
   "description":  "CoffeeScript with a Y.",
-  "keywords":     ["javascript", "language", "coffeescript", "coffyscript", "transpiler", "compiler"],
+  "keywords":     ["javascript", "language", "coffeescript", "coffyscript", "transpiler", "compiler", "asynchronous",
+                    "control flow", "yield", "generators"],
   "author":       "loveencounterflow",
   "version":      "1.6.3",
   "licenses":     [{

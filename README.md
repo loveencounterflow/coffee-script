@@ -384,7 +384,7 @@ suspend = require 'suspend'
 read_text_file = ( route, handler ) ->
   ### A run-of-the-mill asynchronous file reading function; `handler` should be a NodeJS-compliant callback
   function that expects to be called with `( error, data )` on completion. ###
-  ( require 'fs' ).readFile __filename, 'utf-8', ( error, text ) ->
+  ( require 'fs' ).readFile route, 'utf-8', ( error, text ) ->
     if error?
       handler error
     else
@@ -429,10 +429,11 @@ test_read_text_file = ( route ) ->
 test_read_text_file __filename
 ```
 
-It's really amazing how clear this syntax is once you've removed callbacks and got used to the semantics of
-`yield`. jmar777 remarks that instead of building a full-fledged asynchronous helper libraries with all the
-bells and whistles, he'd rather stick with the minimalist approach and keep `suspend` small for the time
-being; he recommends using `async` for higher-order asynchronous chores. i can only second that sentiment.
+It's really amazing how clear this syntax is once you've gotten used to the semantics of `yield` and removed
+your callbacks. jmar777 remarks that instead of building a full-fledged asynchronous helper libraries with
+all the bells and whistles, he'd rather stick with the minimalist approach and keep `suspend` small for the
+time being; he recommends using `async` for higher-order asynchronous chores. i can only second that
+sentiment.
 
 Still, it is fun and quite instructive to see how the most recurrent asynchronous chores can be formulated
 using nothing but `yield`, `suspend`, and `resume`, so this is what i want to do next.
@@ -491,8 +492,8 @@ double_numbers_in_parallel = ( n0, n1, handler ) ->
 
 Things do get a tad more complicated as we have to keep track of how many calls are still unfinished. On the
 bright side, the average time to compute a list of, say, a hundred numbers has just come down from 50
-seconds to about a half second. On the other hand, our list is just mumbo-jumbo numbos, the result being
-randomly distributed over the results list. However, it's not really difficult to remedy that without any
+seconds to about a half second. On the other hand, our list is just mumbo-jumbo numbos, the results being
+randomly distributed over the result list. However, it's not really difficult to remedy that without any
 sacrifice in terms of efficiency:
 
 ```coffeescript
