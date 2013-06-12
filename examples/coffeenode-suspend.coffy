@@ -156,15 +156,14 @@ test_synchronous_call = ->
 
 ############################################################################################################
 
-# test_serial()
-# test_parallel()
+# do test_serial
+# do test_parallel
 # step walk_and_talk
-# ( suspend read_file )()
-# test_sorted_parallel()
-# test_read_text_file_with_suspend()
-# test_read_text_file_with_step __filename
+# do test_sorted_parallel
+# do test_read_text_file_with_suspend
+test_read_text_file_with_step __filename
 # test_read_text_file_with_step 'NOSUCHFILE'
-# test_synchronous_call()
+# do test_synchronous_call
 
 
 

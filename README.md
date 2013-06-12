@@ -78,7 +78,8 @@ log counting_generator.next()   # throws an error saying "Generator has already 
 
 ```
 
-> *(Note: The output you see is somewhat of a peculiarity of ES6 generators. In Python, generators throw a special
+> *(Note: The output you see is somewhat of a peculiarity of ES6 generators. In Python and in current (June 2013)
+> Firefoxen, generators throw a special
 > `StopIteration` exception to signal the generator has run to completion; because of [concerns over
 > efficiency and correctness in a fundamentally asynchronous language like
 > JavaScript](https://github.com/rwldrn/tc39-notes/blob/master/es6/2013-03/mar-12.md#412-stopiterationgenerator),
@@ -271,11 +272,6 @@ can 'talk' to your generator, as it were, telling it what to do.
 Now that we've got all the pieces together, let's have a look at how `yield` is great for dealing with
 asynchronous programming.
 
-In the following code, `after` is just a friendly rewrite of `setTimeout`, JavaScript's most generic means
-for asynchronous programming: it takes a time expressed as number of seconds and a callback; it will call
-the callback at some time in the future when at least as many seconds have passed; in the meantime, the
-current code context is run to completion. Now look at this code
-fragment:
 
 ```coffeescript
 stepper_with_timeouts = ->*
@@ -287,6 +283,11 @@ stepper_with_timeouts = ->*
 g = stepper_with_timeouts()
 g.next()
 ```
+
+> In this code, `after` is just a friendly rewrite of `setTimeout`, JavaScript's most generic means for
+> asynchronous programming: it takes a time expressed as number of seconds and a callback; it will call the
+> callback at some time in the future when at least as many seconds have passed; before that can happen, the
+> current code context is allowed to run to completion.
 
 We first retrieve the generator, then call `g.next()` on it. Of course what happens is that we immediately
 get printed out `A`, and, after a delay of one second, a `1` appears on the console. We never get to see
@@ -455,9 +456,11 @@ double = ( n, handler ) ->
 
 We've already seen that `yield` lends itself to serialization, so let's start with just that: We want a
 function that takes a start value, a stop value and a handler; we'll step over all the numbers one by one,
-and on completion call the handler with the result. Since each happens in an asynchronous fashion and may
-take anywhere between zero and one seconds to complete, we'll have to serialize the calls so the result list
-keeps the correct order. this turns out to be fairly simple:
+and on completion call the handler with a list of results.
+
+Since each call happens asynchronously and may take anywhere between zero and one seconds to complete, we'll
+have to serialize the calls so the result list keeps the correct order. And that turns out to be rather
+simple indeed:
 
 ```coffeescript
 double_numbers_in_serial = ( n0, n1, handler ) ->
@@ -471,11 +474,13 @@ double_numbers_in_serial = ( n0, n1, handler ) ->
     handler null, Z
 ```
 
-...and that's it!
+Some tasks greatly benefit from complete or partial serialization: when you run thousands of automated web
+page retrievals, you will want to limit how many open connections there are; when you want to drill into
+data from a database, future requests may depend on the outcome of earlier ones.
 
-Now it so turns out that computing our list of numbers in a serialized manner is not the most efficient
-way—after all, each call takes a half second on average and leaves the CPU rather idle for that accumulated
-time. If we could do that in a more parallelized manner, that would be great. And we can:
+In our case, however, we do not have to be careful about resources, and results are mutually independent.
+Each call takes a half second on average and leaves the CPU idle for that accumulated time. If we could do
+that in a more parallelized manner, that would be great. And we can:
 
 ```coffeescript
 double_numbers_in_parallel = ( n0, n1, handler ) ->
@@ -496,8 +501,8 @@ double_numbers_in_parallel = ( n0, n1, handler ) ->
 Things do get a tad more complicated as we have to keep track of how many calls are still unfinished. On the
 bright side, the average time to compute a list of, say, a hundred numbers has just come down from 50
 seconds to about a half second. On the other hand, our list is just mumbo-jumbo numbos, the results being
-randomly distributed over the result list. However, it's not really difficult to remedy that without any
-sacrifice in terms of efficiency:
+randomly distributed over the result list (fine for some tasks, not good for others). It's not really
+difficult to remedy that without any sacrifice in terms of efficiency:
 
 ```coffeescript
 double_numbers_in_sorted_parallel = ( n0, n1, handler ) ->
@@ -530,14 +535,14 @@ utility methods; the thing is called `coffeenode-suspend` and is available on
 
 coffeenode-suspend differs from the original in a few points:
 
-* **coffenode-suspend** is re-written in CoffeeScript;
-* it works with callback-accepting *synchronous* functions;
-* this means using `suspend` (or `step`) will make your code asynchronous in case it wasn't already.
-* **coffenode-suspend** will throw errors *in the generator* by default (instead of returning them);
-* it will send only **a single value** (not a list with a single value) to the generator if the function calling
-  back did so with a single argument (otherwise no change);
-* it offers utility functions for your asynchronous chores (available as `suspend.step`, `suspend.after`, and
-  `suspend.eventually`).
+* coffenode-suspend is **re-written in CoffeeScript**;
+* it **works with callback-accepting synchronous functions**
+* which means using `suspend` or `step` will **make your code asynchronous in case it wasn't already**.
+* coffenode-suspend will **throw errors in the generator** by default (instead of returning them);
+* it will **send only a single value** (not a list with a single value) to the generator if the callback
+  just delivered a single value;
+* it offers **utility functions** for your asynchronous chores (available as `suspend.step`, `suspend.after`,
+  and `suspend.eventually`).
 
 In essence, you can now write code like this:
 
@@ -589,7 +594,7 @@ this, the global `require.exensions` will mar those efforts**. This is bad.
 
 For the time being, the best solution seems to be to pre-compile all your sources written in a secondary
 language to their target language (`*.js` in most cases), but if you're like me, you still want to run your
-sources and compile them on-the-fly. So in order to provider a best-effort stop-gap solution, i've edited
+sources and compile them on-the-fly. In order to provide a best-effort stop-gap solution, i've edited
 `src/coffee-script.coffee` so that it registers all of CoffeeScript's extensions (`.coffee`, `.litcoffee`,
 `.coffee.md`) *and* its own extensions (`.coffy`, `.litcoffy`, `.coffy.md`). The recommendation is that
 you use one of the `*.coffy` extensions whenever you want to use `yield`, and `*.coffee` otherwise.
