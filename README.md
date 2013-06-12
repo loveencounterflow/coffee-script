@@ -528,6 +528,36 @@ utility methods; the thing is called `coffeenode-suspend` and is available on
 [GitHub](https://github.com/loveencounterflow/coffeenode-suspend) and on
 [NPM](https://npmjs.org/package/coffeenode-suspend).
 
+coffeenode-suspend differs from the original in a few points:
+
+* **coffenode-suspend** is re-written in CoffeeScript;
+* it works with callback-accepting *synchronous* functions;
+* this means using `suspend` (or `step`) will make your code asynchronous in case it wasn't already.
+* **coffenode-suspend** will throw errors *in the generator* by default (instead of returning them);
+* it will send only **a single value** (not a list with a single value) to the generator if the function calling
+  back did so with a single argument (otherwise no change);
+* it offers utility functions for your asynchronous chores (available as `suspend.step`, `suspend.after`, and
+  `suspend.eventually`).
+
+In essence, you can now write code like this:
+
+```coffeescript
+test_read_text_file_with_step = ( route ) ->
+  return step ( resume ) =>*
+    try
+      text = yield read_text_file route, resume
+      log "read #{text.length} characters"
+    catch error
+      log "### THIS ERROR CAHUGHT IN GENERATOR ### #{error[ 'message' ]}"
+```
+
+Getting those yielded values and catching those errors has just become a tad more like what you know from
+synchronous programming. And just in case you thought that `read_text_file` function was asynchronous but in
+fact wasn't, your code will have *transparently* become asynchronous and will continue working.
+
+To see more, take a look at the code in
+[examples/coffeenode-suspend.coffy](https://github.com/loveencounterflow/coffy-script/blob/master/examples/coffeenode-suspend.coffy).
+
 
 ## Implementation Status
 

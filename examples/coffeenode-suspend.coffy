@@ -7,8 +7,7 @@ njs_fs                    = require 'fs'
 #...........................................................................................................
 log                       = console.log
 rpr                       = njs_util.inspect
-suspend                   = require 'coffeenode-suspend/src/main.coffee'
-# suspend                   = require 'coffeenode-suspend/lib/main.js'
+suspend                   = require 'coffeenode-suspend'
 step                      = suspend.step
 after                     = suspend.after
 eventually                = suspend.eventually
@@ -23,13 +22,16 @@ eventually                = suspend.eventually
 read_text_file = ( route, handler ) ->
   ### A run-of-the-mill asynchronous file reading function; `handler` should be a NodeJS-compliant callback
   function that expects to be called with `( error, data )` on completion. ###
-  return handler null, 'helo'
-  # return eventually -> handler null, 'helo'
   ( require 'fs' ).readFile route, 'utf-8', ( error, text ) ->
     if error?
       handler error
     else
       handler null, text
+
+#-----------------------------------------------------------------------------------------------------------
+get_text_synchronously = ( text, handler ) ->
+  ### A synchronous function with a callback. ###
+  handler null, "***#{text}***"
 
 #-----------------------------------------------------------------------------------------------------------
 #                         argument to `suspend`:
@@ -47,21 +49,16 @@ test_read_text_file_with_suspend = suspend ( resume ) ->*
     text = yield read_text_file __filename, resume
     log "read #{text.length} characters"
   catch error
-    log "### an error occurred. #{error[ 'message' ]}"
+    log "### THIS ERROR CAUGHT IN GENERATOR ### #{error[ 'message' ]}"
 
 #-----------------------------------------------------------------------------------------------------------
 test_read_text_file_with_step = ( route ) ->
   return step ( resume ) =>*
-    text = yield read_text_file route, resume
-    log "read #{text.length} characters"
-# test_read_text_file_with_step = ( route ) ->
-#   return step ( resume ) =>*
-#     try
-#       text = yield read_text_file route, resume
-#       log "read #{text.length} characters"
-#     catch error
-#       log "### an error occurred. #{error[ 'message' ]}"
-
+    try
+      text = yield read_text_file route, resume
+      log "read #{text.length} characters"
+    catch error
+      log "### THIS ERROR CAUGHT IN GENERATOR ### #{error[ 'message' ]}"
 
 #===========================================================================================================
 # EX.: DOING THINGS IN SERIAL AND IN (ORDERED) PARALLEL
@@ -150,23 +147,24 @@ test_sorted_parallel = ->
     throw error if error?
     log "results from sorted parallel processing:", data
 
+#-----------------------------------------------------------------------------------------------------------
+test_synchronous_call = ->
+  step ( resume ) ->*
+    log yield get_text_synchronously 'helo',  resume
+    log yield get_text_synchronously 'world', resume
+    log 'finished.'
 
 ############################################################################################################
-# require 'coffee-script'
-# ERROR = require 'coffeenode-stacktrace'
 
-try
-  # test_serial()
-  # test_parallel()
-  # step walk_and_talk
-  # ( suspend read_file )()
-  # test_sorted_parallel()
-  # test_read_text_file_with_suspend()
-  test_read_text_file_with_step __filename
-  # test_read_text_file_with_step 'NOSUCHFILE'
-  null
-catch error
-  # ERROR.log_stacktrace error
-  throw error
+# test_serial()
+# test_parallel()
+# step walk_and_talk
+# ( suspend read_file )()
+# test_sorted_parallel()
+# test_read_text_file_with_suspend()
+# test_read_text_file_with_step __filename
+# test_read_text_file_with_step 'NOSUCHFILE'
+# test_synchronous_call()
+
 
 
