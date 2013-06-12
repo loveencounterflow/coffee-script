@@ -7,10 +7,9 @@ njs_fs                    = require 'fs'
 #...........................................................................................................
 log                       = console.log
 rpr                       = njs_util.inspect
-suspend                   = require 'coffeenode-suspend'
+suspend                   = require 'suspend'
 
 ### TAINT not a test suite just yet, just an example ###
-
 
 
 #===========================================================================================================
@@ -27,14 +26,28 @@ step = ( stepper ) ->
 after = ( time_s, handler ) ->
   ### `after` is a thin shim around `setTimeout` that adheres to NodeJS conventions, taking a `handler`
   callback function as last argument. Also, the timeout is given in humane seconds rather than in ms. ###
-  setTimeout handler, time_s * 1000
-  return null
+  return setTimeout handler, time_s * 1000
 
 #-----------------------------------------------------------------------------------------------------------
 eventually = ( handler ) ->
   ### `eventually f` is just another name for `process.nextTick f`—which in turn is basically equivalent to
   `after 0, f`. ###
   return process.nextTick handler
+
+#===========================================================================================================
+# EX.: WALK'N'TALK
+#-----------------------------------------------------------------------------------------------------------
+walk_and_talk = ( resume ) ->*
+  ### An example to demonstrate that multiple `yield`s are possible within a suspended function. We really
+  can serialize asynchronous processing steps this way—think multiple calls to a database while drilling
+  down into the data—without invoking the Pyramid of Doom. ###
+  log "after"
+  yield after 1, resume
+  log "a"
+  yield after 1, resume
+  log "long"
+  yield after 1, resume
+  log "time"
 
 #===========================================================================================================
 # EX.: READING A FILE
@@ -60,24 +73,19 @@ test_read_text_file_with_suspend = suspend ( resume ) ->*
   asynchronous function, we simple call that function with `resume`as callback, prepend the call with
   a `yield` statement, and upon completion we'll get a pair `[ error, data, ]` back from `yield`.
   We can than proceed to dealing with an error or further process the data. ###
-  try
-    text = yield read_text_file __filename, resume
-    log "read #{text.length} characters"
-  catch error
-    log "### an error occurred. #{error[ 'message' ]}"
+  [ error
+    text  ] = yield read_text_file __filename, resume
+  throw error if error?
+  log "read #{text.length} characters"
 
 #-----------------------------------------------------------------------------------------------------------
 test_read_text_file_with_step = ( route ) ->
+  ### Same as `test_read_text_file_with_suspend`, but actually executing the call. ###
   return step ( resume ) =>*
-    text = yield read_text_file route, resume
+    [ error
+      text  ] = yield read_text_file route, resume
+    throw error if error?
     log "read #{text.length} characters"
-# test_read_text_file_with_step = ( route ) ->
-#   return step ( resume ) =>*
-#     try
-#       text = yield read_text_file route, resume
-#       log "read #{text.length} characters"
-#     catch error
-#       log "### an error occurred. #{error[ 'message' ]}"
 
 
 #===========================================================================================================
@@ -101,11 +109,12 @@ double_numbers_in_serial = ( n0, n1, handler ) ->
   Z     = []
   #.........................................................................................................
   step ( resume ) ->*
-    try
-      for i in [ n0 .. n1 ]
-        result = yield double i, resume
-        Z.push result
-      handler null, Z
+    for i in [ n0 .. n1 ]
+      [ error
+        result ] = yield double i, resume
+      handler error if error?
+      Z.push result
+    handler null, Z
 
 #-----------------------------------------------------------------------------------------------------------
 double_numbers_in_parallel = ( n0, n1, handler ) ->
@@ -120,8 +129,10 @@ double_numbers_in_parallel = ( n0, n1, handler ) ->
   for i in [ n0 .. n1 ]
     active_call_count += 1
     step ( resume ) ->*
-      result = yield double i, resume
+      [ error
+        result ] = yield double i, resume
       active_call_count -= 1
+      handler error if error?
       Z.push result
       handler null, Z if active_call_count is 0
   #.........................................................................................................
@@ -139,8 +150,10 @@ double_numbers_in_sorted_parallel = ( n0, n1, handler ) ->
     active_call_count  += 1
     do ( idx ) ->
       step ( resume ) ->*
-        result = yield double i, resume
+        [ error
+          result ] = yield double i, resume
         active_call_count -= 1
+        handler error if error?
         Z[ idx ] = result
         handler null, Z if active_call_count is 0
   #.........................................................................................................
@@ -169,23 +182,12 @@ test_sorted_parallel = ->
 
 
 ############################################################################################################
-require 'coffee-script'
-ERROR = require 'coffeenode-stacktrace'
-
-
-
-try
-  # test_serial()
-  # test_parallel()
-  # step walk_and_talk
-  # ( suspend read_file )()
-  # test_sorted_parallel()
-  # test_read_text_file_with_suspend()
-  test_read_text_file_with_step __filename
-  # test_read_text_file_with_step 'NOSUCHFILE'
-  null
-catch error
-  ERROR.log_stacktrace error
-
+# test_serial()
+# test_parallel()
+# step walk_and_talk
+# ( suspend read_file )()
+# test_sorted_parallel()
+# test_read_text_file_with_suspend()
+test_read_text_file_with_step __filename
 
 

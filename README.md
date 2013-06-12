@@ -22,7 +22,8 @@ JavaScript engine).
 ## TL;DR
 
 The impatient may want to scroll down to the section on [Suspension](#suspension), where i demonstrate how
-to write serialized asynchronous function calls.
+to write serialized asynchronous function calls. Don't miss out on the [disclaimers](#implementation-status)
+either—this is new, this is hot, this may need some experience and patience on your part to get working right.
 
 **Table of Contents**
 
@@ -533,6 +534,24 @@ ES6 also specifies `yield*`, which corresponds to Python's `yield from` construc
 use that in NodeJS 0.11.2, you're bound to witness the Longest. Stacktrace. Ever. from deep inside of NodeJS,
 so don't do that.
 
+
+### A Note on Require.Extensions
+
+After NodeJS's multilinguistic capabilities had gotten enthusiastically
+embraced by people advocating '[symbiotic languages](http://ashkenas.com/dotjs/)', the drawbacks of having a
+single, global `require.extensions` object manage transpiling languages became apparent.
+
+Fact is, **if Language A registers and extension `.lang` and any Language B does so too, it becomes unclear
+which language will end up dealing with any given file `x.lang`. Worse, two modules may require two
+different versions of the same language, and while the NPM module system as such is designed to allow just
+this, the global `require.exensions` will mar those efforts**. This is bad.
+
+For the time being, the best solution seems to be to pre-compile all your sources written in a secondary
+language to their target language (`*.js` in most cases), but if you're like me, you still want to run your
+sources and compile them on-the-fly. So in order to provider a best-effort stop-gap solution, i've edited
+`src/coffee-script.coffee` so that it registers all of CoffeeScript's extensions (`.coffee`, `.litcoffee`,
+`.coffee.md`) *and* its own extensions (`.coffy`, `.litcoffy`, `.coffy.md`). The recommendation is that
+you use one of the `*.coffy` extensions whenever you want to use `yield`, and `*.coffee` otherwise.
 
 ## Syntax
 
