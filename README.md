@@ -518,6 +518,15 @@ double_numbers_in_sorted_parallel = ( n0, n1, handler ) ->
 All we have to do is remembering the index where each result has to land; we can easily accomplish that by
 using a CoffeeScript `do () ->` closure.
 
+
+## Suspension #2
+
+So i forked [suspend](https://github.com/jmar777/suspend), rewrote it in CoffeeScript, and added a few
+utility methods; the thing is called `coffeenode-suspend` and is available on
+[GitHub](https://github.com/loveencounterflow/coffeenode-suspend) and on
+[NPM](https://npmjs.org/package/coffeenode-suspend).
+
+
 ## Implementation Status
 
 **Note: You will need NodeJS version ≥ 0.11.2 to use `yield`. The `bin/coffee` executable sets the V8
@@ -527,8 +536,8 @@ consider changing that to `--harmony-generators`.**
 CoffyScript is as yet **experimental**—just a quick hack of the CoffeeScript grammar. **You should probably
 not use it to control a space rocket.**
 
-Currently, the focus is on getting generators right in NodeJS; other targets most importantly Firefox
-(which does not fully comply with ES6 generator specs) are *not* supported.
+Currently, the focus is on getting generators right in NodeJS; other targets (most importantly Firefox,
+which currently does not fully comply with ES6 generator specs) are *not* supported.
 
 ES6 also specifies `yield*`, which corresponds to Python's `yield from` construct. However, if you try to
 use that in NodeJS 0.11.2, you're bound to witness the Longest. Stacktrace. Ever. from deep inside of NodeJS,

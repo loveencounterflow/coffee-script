@@ -153,7 +153,7 @@ loadFile = (module, filename) ->
 # If the installed version of Node supports `require.extensions`, register
 # CoffeeScript as an extension.
 if require.extensions
-  for ext in ['.coffee', '.litcoffee', '.coffee.md', '.coffy', '.litcoffy', '.coffy.md']
+  for ext in ['.coffy', '.litcoffy', '.coffy.md', '.coffee', '.litcoffee', '.coffee.md']
     require.extensions[ext] = loadFile
 
   # Patch Node's module loader to be able to handle mult-dot extensions.

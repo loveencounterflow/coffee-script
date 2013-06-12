@@ -129,10 +129,10 @@ exports.baseFileName = (file, stripExt = no, useWinPathSep = no) ->
   parts.join('.')
 
 # Determine if a filename represents a CoffeeScript file.
-exports.isCoffee = (file) -> /\.((lit)?coffee|coffee\.md)$/.test file
+exports.isCoffee = (file) -> /\.((lit)?coff(?:ee|y)|coff(?:ee|y)\.md)$/.test file
 
 # Determine if a filename represents a Literate CoffeeScript file.
-exports.isLiterate = (file) -> /\.(litcoffee|coffee\.md)$/.test file
+exports.isLiterate = (file) -> /\.(litcoff(?:ee|y)|coff(?:ee|y)\.md)$/.test file
 
 # Throws a SyntaxError with a source file location data attached to it in a
 # property called `location`.

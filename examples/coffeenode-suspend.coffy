@@ -7,33 +7,15 @@ njs_fs                    = require 'fs'
 #...........................................................................................................
 log                       = console.log
 rpr                       = njs_util.inspect
-suspend                   = require 'coffeenode-suspend'
+suspend                   = require 'coffeenode-suspend/src/main.coffee'
+# suspend                   = require 'coffeenode-suspend/lib/main.js'
+step                      = suspend.step
+after                     = suspend.after
+eventually                = suspend.eventually
+
 
 ### TAINT not a test suite just yet, just an example ###
 
-
-
-#===========================================================================================================
-# HELPERS
-#-----------------------------------------------------------------------------------------------------------
-step = ( stepper ) ->
-  ### Like `suspend` (see `https://github.com/jmar777/suspend`), but executing the suspended function
-  immediately. ###
-  R = suspend stepper
-  #.........................................................................................................
-  return R()
-
-#-----------------------------------------------------------------------------------------------------------
-after = ( time_s, handler ) ->
-  ### `after` is a thin shim around `setTimeout` that adheres to NodeJS conventions, taking a `handler`
-  callback function as last argument. Also, the timeout is given in humane seconds rather than in ms. ###
-  return setTimeout handler, time_s * 1000
-
-#-----------------------------------------------------------------------------------------------------------
-eventually = ( handler ) ->
-  ### `eventually f` is just another name for `process.nextTick f`—which in turn is basically equivalent to
-  `after 0, f`. ###
-  return process.nextTick handler
 
 #===========================================================================================================
 # EX.: READING A FILE
@@ -42,6 +24,7 @@ read_text_file = ( route, handler ) ->
   ### A run-of-the-mill asynchronous file reading function; `handler` should be a NodeJS-compliant callback
   function that expects to be called with `( error, data )` on completion. ###
   return handler null, 'helo'
+  # return eventually -> handler null, 'helo'
   ( require 'fs' ).readFile route, 'utf-8', ( error, text ) ->
     if error?
       handler error
