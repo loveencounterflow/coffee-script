@@ -34,9 +34,11 @@ either—this is new, this is hot, this may need some experience and patience on
   - [Sending Values](#sending-values)
 - [How Not to Yield to Callback Hell: Serializing Control Flow](#how-not-to-yield-to-callback-hell-serializing-control-flow)
 - [Suspension](#suspension)
+- [Suspension #2](#suspension-2)
 - [Implementation Status](#implementation-status)
+  - [A Note on Require.Extensions](#a-note-on-requireextensions)
 - [Syntax](#syntax)
-- [Asynchronicity & How to Cope with it: the Alternatives](#asynchronicity--how-to-cope-with-it-the-alternatives)
+- [Asynchronicity & How to Cope With It: the Alternatives](#asynchronicity--how-to-cope-with-it-the-alternatives)
 
 > *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
