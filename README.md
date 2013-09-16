@@ -9,21 +9,20 @@ and
 [EcmaScript 6 (ES6, dubbed 'Harmony')](http://wiki.ecmascript.org/doku.php?id=harmony:generators), we have a
 Python-like `yield` keyword in JavaScript. Yeah!
 
-That's really cool 'cause, y'know, `yield` brings generators, and generators are cool for—you
-guessed it—asynchronous programming.
+That's really cool: **asynchronous programming and generators are a natural match**.
 
 Unfortunately, it's not looking as if [CoffeeScript](https://github.com/jashkenas/coffee-script) in its
 official incarnation is
 [going to support `yield` any time soon](https://github.com/jashkenas/coffee-script/wiki/FAQ#unsupported-features),
-which is a shame since it has already landed in NodeJS—which relies on V8, and the V8 team is known to be rather
-conservative with features (which is understandable when your aim is to build the fastest *and* the most compatible
-JavaScript engine).
+which is a shame since it has already landed in NodeJS. So i patched together this CoffeeScript fork that
+bends the parsing rules somewhat, with the result that this version supports 'starred function syntax' and
+the `yield` statement. See below for details.
 
 ## TL;DR
 
 The impatient may want to scroll down to the section on [Suspension](#suspension), where i demonstrate how
-to write serialized asynchronous function calls. Don't miss out on the [disclaimers](#implementation-status)
-either—this is new, this is hot, this may need some experience and patience on your part to get working right.
+to write serialized asynchronous function calls. Be sure to read the [disclaimers](#implementation-status)—this
+is rather new stuff, not yet main stream, so there will be rough edges.
 
 **Table of Contents**
 
@@ -37,7 +36,6 @@ either—this is new, this is hot, this may need some experience and patience on
 - [Suspension #2](#suspension-2)
 - [Implementation Status](#implementation-status)
   - [A Note on Require.Extensions](#a-note-on-requireextensions)
-- [Syntax](#syntax)
 - [Asynchronicity & How to Cope With It: the Alternatives](#asynchronicity--how-to-cope-with-it-the-alternatives)
 
 > *generated with [DocToc](http://doctoc.herokuapp.com/)*
@@ -587,7 +585,7 @@ After NodeJS's multilinguistic capabilities had gotten enthusiastically
 embraced by people advocating '[symbiotic languages](http://ashkenas.com/dotjs/)', the drawbacks of having a
 single, global `require.extensions` object manage transpiling languages became apparent.
 
-Fact is, **if Language A registers and extension `.lang` and any Language B does so too, it becomes unclear
+Fact is, **if Language A registers extension `.lang` and any Language B does so too, it becomes unclear
 which language will end up dealing with any given file `x.lang`. Worse, two modules may require two
 different versions of the same language, and while the NPM module system as such is designed to allow just
 this, the global `require.exensions` will mar those efforts**. This is bad.
@@ -598,25 +596,6 @@ sources and compile them on-the-fly. In order to provide a best-effort stop-gap 
 `src/coffee-script.coffee` so that it registers all of CoffeeScript's extensions (`.coffee`, `.litcoffee`,
 `.coffee.md`) *and* its own extensions (`.coffy`, `.litcoffy`, `.coffy.md`). The recommendation is that
 you use one of the `*.coffy` extensions whenever you want to use `yield`, and `*.coffee` otherwise.
-
-## Syntax
-
-ES6 specifies that functions that use `yield` must be defined using `function*` instead of plain `function`.
-CoffeeScript's equivalent for the JS keyword `function` is the arrow notation, so we attach the asterisk
-to the arrows to get `->*` for ordinary and `=>*` for bound generator functions:
-
-    walk_fibonacci = ->*
-      # ... some code ...
-      yield x
-
-    walk_fibonacci = =>*
-      # ... some code ...
-      yield x
-
-Should you forget the asterisk after the arrow, you will get a rather unhelpful error from NodeJS stating
-that it 'doesn't know about yield', which of course is bollocks (provided that you do have a bleeding edge
-version of NodeJS); just remember that when 'yield' occurs in an error message, the asterisk is the first
-thing to check.
 
 
 ## Asynchronicity & How to Cope With It: the Alternatives
@@ -633,7 +612,7 @@ implementation of JS Harmony iterators and generators, so JavaScripters can't ye
 writing `for x of foo()`—you always have to use explicit calls like `generator.next()`, `generator.send()`,
 `generator.throw()`, `generator.close()`.
 
-JavaScript might not be as 'iterative' as modern Pythons are, but it sure is a *lot* more asynchronous by
+JavaScript might not be as 'iterative' as modern Pythons, but it sure is a *lot* more asynchronous by
 nature.
 
 * **Callbacks**. Simple, well standardized. CoffeeScript's function syntax makes callbacks a lot more viable for
