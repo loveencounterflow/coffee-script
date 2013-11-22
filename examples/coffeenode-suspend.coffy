@@ -39,7 +39,7 @@ get_text_synchronously = ( text, handler ) ->
 #     `suspend`           accepts `resume` as its
 #                          asynchronous callback
 #        ↓                           ↓
-test_read_text_file_with_suspend = suspend ( resume ) ->*
+test_read_text_file_with_suspend = suspend ( resume ) ->
   ### The consumer of the `read_text_file` function defined above. It is defined by 'decorating' a
   generator function that accepts a `resume` argument with `suspend`. When calling a NodeJS-compliant
   asynchronous function, we simple call that function with `resume`as callback, prepend the call with
@@ -53,7 +53,7 @@ test_read_text_file_with_suspend = suspend ( resume ) ->*
 
 #-----------------------------------------------------------------------------------------------------------
 test_read_text_file_with_step = ( route ) ->
-  return step ( resume ) =>*
+  return step ( resume ) =>
     try
       text = yield read_text_file route, resume
       log "read #{text.length} characters"
@@ -80,7 +80,7 @@ double_numbers_in_serial = ( n0, n1, handler ) ->
   for each single turn. ###
   Z     = []
   #.........................................................................................................
-  step ( resume ) ->*
+  step ( resume ) ->
     try
       for i in [ n0 .. n1 ]
         result = yield double i, resume
@@ -99,7 +99,7 @@ double_numbers_in_parallel = ( n0, n1, handler ) ->
   #.........................................................................................................
   for i in [ n0 .. n1 ]
     active_call_count += 1
-    step ( resume ) ->*
+    step ( resume ) ->
       result = yield double i, resume
       active_call_count -= 1
       Z.push result
@@ -118,7 +118,7 @@ double_numbers_in_sorted_parallel = ( n0, n1, handler ) ->
     idx                 = active_call_count
     active_call_count  += 1
     do ( idx ) ->
-      step ( resume ) ->*
+      step ( resume ) ->
         result = yield double i, resume
         active_call_count -= 1
         Z[ idx ] = result
@@ -149,7 +149,7 @@ test_sorted_parallel = ->
 
 #-----------------------------------------------------------------------------------------------------------
 test_synchronous_call = ->
-  step ( resume ) ->*
+  step ( resume ) ->
     log yield get_text_synchronously 'helo',  resume
     log yield get_text_synchronously 'world', resume
     log 'finished.'

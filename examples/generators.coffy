@@ -30,7 +30,7 @@ eventually = ( handler ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 fibonacci = ->
-  walk_fibonacci = ->*
+  walk_fibonacci = ->
     a = 1
     b = 1
     loop
@@ -49,7 +49,7 @@ fibonacci = ->
 
 #-----------------------------------------------------------------------------------------------------------
 fibonacci_with_throw = ->
-  walk_fibonacci = ->*
+  walk_fibonacci = ->
     a = 1
     b = 1
     loop
@@ -79,7 +79,7 @@ fibonacci_with_throw = ->
 
 #-----------------------------------------------------------------------------------------------------------
 fibonacci_with_send = ->
-  walk_fibonacci = ( a, b ) ->*
+  walk_fibonacci = ( a, b ) ->
     initial_a = a ?= 1
     initial_b = b ?= 1
     loop
@@ -103,7 +103,7 @@ fibonacci_with_send = ->
 
 #-----------------------------------------------------------------------------------------------------------
 stepper_with_timeouts_1 = ->
-  stepper_with_timeouts = ->*
+  stepper_with_timeouts = ->
     log "after"
     yield after 1, -> log '1'
     log "a"
@@ -118,7 +118,7 @@ stepper_with_timeouts_2 = ->
   resume = ->
     g.next()
 
-  stepper_with_timeouts = ->*
+  stepper_with_timeouts = ->
     log "after"
     yield after 1, resume
     log "a"
@@ -143,7 +143,7 @@ read_a_file = ->
     ### Send results to generator. ###
     g.send [ error, data, ]
 
-  log_character_count = ( route ) ->*
+  log_character_count = ( route ) ->
     ### Given a `route`, retrieve the text of that file and print out its character count. ###
     [ error, text ] = yield read_file route, resume
     log "file #{__filename} is #{text.length} characters long."
