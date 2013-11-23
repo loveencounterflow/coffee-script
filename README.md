@@ -7,7 +7,8 @@ updated to [the Nov 15, 2013 version of CoffeeScript master](https://github.com/
 merged with [pull request #3240 from the same date](https://github.com/alubbe/coffee-script/commit/f51cbd71179c30dccab1806146c50b688fa2b528).
 The strange version number is just `'1' + '1.6.3'` as a way to indicate that **(1)** it's basically CS v1.6.3;
 **(2)** it's a little more than that version of CS; **(3)** it introduces breaking changes w.r.t. the previous
-version of CoffyScript (namely, no more `->*`, only `->`). Given that the community seems quite eager to
+version of CoffyScript (namely, no more `->*`, only `->`; no more `g.send`, only `g.next`).
+Given that the community seems quite eager to
 get `yield` into CS, it is to be expected that CoffyScript will soon become useless—which is a good thing.
 
 
@@ -64,6 +65,13 @@ maybe 'resumable return' is not so bad after all.
 
 The simplest example for using generators may be something like this (`log` being a shortcut for
 `console.log` here):
+
+> **Note** if you want to translate this and the following examples into plain JavaScript, observe
+> that all functions containing the `yield` keyword must be declared as `function* f() {}` or
+> `f = function* () {}`—that is, you need to mark the function as a generator by tacking an `*` (asterisk) to the `function`
+> keyword. The CS community have, in a [pull request discussion](https://github.com/jashkenas/coffee-script/pull/3078),
+> decided to go for the asterisk-less version; accordingly, CoffyScript has switched from using `->*` to using
+> plain `->` for generators.
 
 ```coffeescript
 
@@ -284,12 +292,12 @@ has been removed in newer versions of NodeJS 0.11.x; you now use `generator.next
 
 ## How Not to Yield to Callback Hell: Serializing Control Flow
 
-Now that we've got all the pieces together, let's have a look at how `yield` is great for dealing with
+Now that we've got all the pieces together, let's have a look at why `yield` is so great for dealing with
 asynchronous programming.
 
 
 ```coffeescript
-stepper_with_timeouts = ->*
+stepper_with_timeouts = ->
   log "A"
   yield after 1, -> log '1'
   log "B"
@@ -317,7 +325,7 @@ And this is how we might be doing that, with very simple means:
 resume = ->
   g.next()
 
-stepper_with_timeouts = ->*
+stepper_with_timeouts = ->
   log "after"
   yield after 1, resume
   log "a"
@@ -343,9 +351,9 @@ To really appreciate how great this is, recall that `setTimeout()` (and, therefo
 asynchronous function—unlike the blocking `time.sleep()` you get with a language like Python. This means
 that while the script is running, you could very well be doing some other stuff during the breaks,
 which you can't when using a blocking `sleep()` function. And unlike a so-called 'busy loop'—basically
-`while time() < t1...`—CPU load will be near zero while the program is waiting. And still we have
-managed to arrange our stuff in a linear fashion; without `yield`, we would've been forced to write that
-stuff like
+`while time() < t1...`—CPU load will be near zero while the program is waiting. Yet **we did
+manage to arrange our stuff in a linear fashion**; without `yield`, we would've been forced to write the
+same like
 
 ```coffeescript
 log "after"
@@ -357,11 +365,17 @@ after 1, ->
       log "time"
 ```
 
-invoking the Pyramid of Doom, or using promises or events or an asynchronous library.
+invoking the Pyramid of Doom.
+
+> Of course, using promises, event emitters, or an asynchronous control flow
+> library, could help mitigate the adverse effects of asynchronicity, but all of these solutions bring
+> their own set of drawbacks; in particular, i want to argue that
+> [promises bring an especially heavy cartful of conceptual baggage](https://github.com/loveencounterflow/alpha-one#promises)
+> into the game.
 
 There's one single thing we have to accomplish yet: how to get back a value from an asynchronous call?
-Well, as we've seen above, `g.next()` is really just `g.send value`, so we can easily update the previous
-example. Let's do something different now and read a file asynchronously:
+<del>Well, as we've seen above, `g.next()` is really just `g.send value`, so we can easily update the previous
+example.</del>The answer is `g.next value`.—Let's do something different now and read a file asynchronously:
 
 ```coffeescript
 read_file = ( route, handler ) ->
@@ -372,9 +386,9 @@ read_file = ( route, handler ) ->
 
 resume = ( error, data ) ->
   ### Send results to generator. ###
-  g.send [ error, data, ]
+  g.next [ error, data, ]
 
-log_character_count = ( route ) ->*
+log_character_count = ( route ) ->
   ### Given a `route`, retrieve the text of that file and print out its character count. ###
   [ error, text ] = yield read_file route, resume
   log "file #{__filename} is #{text.length} characters long."
@@ -414,7 +428,7 @@ read_text_file = ( route, handler ) ->
 #     `suspend`           accepts `resume` as its
 #                          asynchronous callback
 #        ↓                           ↓
-test_read_text_file = suspend ( resume ) ->*
+test_read_text_file = suspend ( resume ) ->
   ### The consumer of `read_text_file`, above. It is defined by 'decorating' a generator function (which
   accepts a single argument, `resume`) with `suspend`. When calling a NodeJS-compliant
   asynchronous function, we simple call that function with `resume`as callback, prepend the call with
@@ -439,7 +453,7 @@ step = ( stepper ) ->
 
 test_read_text_file = ( route ) ->
   # Consider to use `=>*` below in order to keep the `this` / `@` context.
-  return step ( resume ) ->*
+  return step ( resume ) ->
     [ error
       text  ] = yield read_text_file route, resume
     throw error if error?
@@ -480,7 +494,7 @@ simple indeed:
 ```coffeescript
 double_numbers_in_serial = ( n0, n1, handler ) ->
   Z = []
-  step ( resume ) ->*
+  step ( resume ) ->
     for i in [ n0 .. n1 ]
       [ error
         result ] = yield double i, resume
@@ -503,7 +517,7 @@ double_numbers_in_parallel = ( n0, n1, handler ) ->
   active_call_count = 0
   for i in [ n0 .. n1 ]
     active_call_count += 1
-    step ( resume ) ->*
+    step ( resume ) ->
       [ error
         result ] = yield double i, resume
       active_call_count -= 1
@@ -527,7 +541,7 @@ double_numbers_in_sorted_parallel = ( n0, n1, handler ) ->
     idx                 = active_call_count
     active_call_count  += 1
     do ( idx ) ->
-      step ( resume ) ->*
+      step ( resume ) ->
         [ error
           result ] = yield double i, resume
         active_call_count -= 1
@@ -562,13 +576,14 @@ coffeenode-suspend differs from the original in a few points:
 In essence, you can now write code like this:
 
 ```coffeescript
+{ step } = require 'coffeenode-suspend'
 test_read_text_file_with_step = ( route ) ->
-  return step ( resume ) =>*
+  return step ( resume ) =>
     try
       text = yield read_text_file route, resume
       log "read #{text.length} characters"
     catch error
-      log "### THIS ERROR CAHUGHT IN GENERATOR ### #{error[ 'message' ]}"
+      log "### THIS ERROR CAUGHT IN GENERATOR ### #{error[ 'message' ]}"
 ```
 
 Getting those yielded values and catching those errors has just become a tad more like what you know from
@@ -581,7 +596,8 @@ To see more, take a look at the code in
 
 ## Implementation Status
 
-**Note: You will need NodeJS version ≥ 0.11.2 to use `yield`. The `bin/coffee` executable sets the V8
+**The current version of CoffyScript has been tested with NodeJS 0.11.7; it should also work on versions
+≥ 0.11.2 and the upcoming 0.12.x stable versions. The `bin/coffee` executable sets the V8
 `--harmony` command line flag so you don't have to. If this should break things with part of your code,
 consider changing that to `--harmony-generators`.**
 
@@ -589,11 +605,13 @@ CoffyScript is as yet **experimental**—just a quick hack of the CoffeeScript g
 not use it to control a space rocket.**
 
 Currently, the focus is on getting generators right in NodeJS; other targets (most importantly Firefox,
-which currently does not fully comply with ES6 generator specs) are *not* supported.
+which currently does not fully comply with ES6 generator specs) are *not* supported and may or may not
+work.
 
-ES6 also specifies `yield*`, which corresponds to Python's `yield from` construct. However, if you try to
-use that in NodeJS 0.11.2, you're bound to witness the Longest. Stacktrace. Ever. from deep inside of NodeJS,
-so don't do that.
+ES6 also specifies `yield*`, which corresponds to Python's `yield from` construct. This has not yet been
+included; when the feature lands in CoffyScript, it will presumably surface as `yieldfrom`. Also missing
+is a loop construct to simplify iterating over generator values, akin to Python's `for x in g`. Community
+discussion would indicate that it might get implemented as `for x outof g`.
 
 
 ### A Note on Require.Extensions
