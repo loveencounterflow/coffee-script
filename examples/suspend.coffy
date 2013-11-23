@@ -37,7 +37,7 @@ eventually = ( handler ) ->
 #===========================================================================================================
 # EX.: WALK'N'TALK
 #-----------------------------------------------------------------------------------------------------------
-walk_and_talk = ( resume ) ->*
+walk_and_talk = ( resume ) ->
   ### An example to demonstrate that multiple `yield`s are possible within a suspended function. We really
   can serialize asynchronous processing steps this way—think multiple calls to a database while drilling
   down into the data—without invoking the Pyramid of Doom. ###
@@ -67,7 +67,7 @@ read_text_file = ( route, handler ) ->
 #     `suspend`           accepts `resume` as its
 #                          asynchronous callback
 #        ↓                           ↓
-test_read_text_file_with_suspend = suspend ( resume ) ->*
+test_read_text_file_with_suspend = suspend ( resume ) ->
   ### The consumer of the `read_text_file` function defined above. It is defined by 'decorating' a
   generator function that accepts a `resume` argument with `suspend`. When calling a NodeJS-compliant
   asynchronous function, we simple call that function with `resume`as callback, prepend the call with
@@ -81,7 +81,7 @@ test_read_text_file_with_suspend = suspend ( resume ) ->*
 #-----------------------------------------------------------------------------------------------------------
 test_read_text_file_with_step = ( route ) ->
   ### Same as `test_read_text_file_with_suspend`, but actually executing the call. ###
-  return step ( resume ) =>*
+  return step ( resume ) =>
     [ error
       text  ] = yield read_text_file route, resume
     throw error if error?
@@ -108,7 +108,7 @@ double_numbers_in_serial = ( n0, n1, handler ) ->
   for each single turn. ###
   Z     = []
   #.........................................................................................................
-  step ( resume ) ->*
+  step ( resume ) ->
     for i in [ n0 .. n1 ]
       [ error
         result ] = yield double i, resume
@@ -128,7 +128,7 @@ double_numbers_in_parallel = ( n0, n1, handler ) ->
   #.........................................................................................................
   for i in [ n0 .. n1 ]
     active_call_count += 1
-    step ( resume ) ->*
+    step ( resume ) ->
       [ error
         result ] = yield double i, resume
       active_call_count -= 1
@@ -149,7 +149,7 @@ double_numbers_in_sorted_parallel = ( n0, n1, handler ) ->
     idx                 = active_call_count
     active_call_count  += 1
     do ( idx ) ->
-      step ( resume ) ->*
+      step ( resume ) ->
         [ error
           result ] = yield double i, resume
         active_call_count -= 1

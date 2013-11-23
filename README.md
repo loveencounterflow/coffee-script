@@ -1,4 +1,16 @@
 
+
+## ⚞ BREAKING NEWS ⚟
+
+CoffyScript has now been bumped to version 11.6.3 to reflect it has been
+updated to [the Nov 15, 2013 version of CoffeeScript master](https://github.com/jashkenas/coffee-script/commit/f047ba52b21805751d68c95f1a2c8aac18601b01),
+merged with [pull request #3240 from the same date](https://github.com/alubbe/coffee-script/commit/f51cbd71179c30dccab1806146c50b688fa2b528).
+The strange version number is just `'1' + '1.6.3'` as a way to indicate that **(1)** it's basically CS v1.6.3;
+**(2)** it's a little more than that version of CS; **(3)** it introduces breaking changes w.r.t. the previous
+version of CoffyScript (namely, no more `->*`, only `->`). Given that the community seems quite eager to
+get `yield` into CS, it is to be expected that CoffyScript will soon become useless—which is a good thing.
+
+
 # CoffyScript
 
 ## ...is CoffeeScript with Yield❗
@@ -57,7 +69,7 @@ The simplest example for using generators may be something like this (`log` bein
 
 # Using a star after the arrow 'licenses' the use of `yield` in the function body;
 # it basically says: this is not an ordinary function, this is a generator function:
-count = ->*
+count = ->
   yield 1
   yield 2
   yield 3
@@ -97,7 +109,7 @@ one might do Fibonacci numbers with generators. Here's one way:
 
 ```coffeescript
 
-walk_fibonacci = ->*
+walk_fibonacci = ->
   a = 1
   b = 1
   loop
@@ -151,7 +163,7 @@ the easiest:
 
 ```coffeescript
 
-walk_fibonacci = ->*
+walk_fibonacci = ->
   a = 1
   b = 1
   loop
@@ -208,7 +220,7 @@ future of asynchronous programming in JavaScript, and that is **sending values i
 feel for this feature, let's rewrite our Fibonacci example a bit:
 
 ```coffeescript
-walk_fibonacci = ( a, b ) ->*
+walk_fibonacci = ( a, b ) ->
   initial_a = a ?= 1
   initial_b = b ?= 1
   loop
@@ -231,7 +243,8 @@ g       = walk_fibonacci 3, 1
 restart = undefined
 
 for idx in [ 0 ... 100 ]
-  { value, done } = g.send restart
+  # { value, done } = g.send restart # NB old version
+  { value, done } = g.next restart
   restart         = value > 100
   break if done
   log value
@@ -259,6 +272,8 @@ for idx in [ 0 ... 100 ]
 Here we have a generalized Fibonacci function that not only accepts two numbers as seed, it also checks
 whether the consumer sent in a truthy value to indicate the sequence should start over. In essence, you
 can 'talk' to your generator, as it were, telling it what to do.
+
+<strike>strikethrough</strike>
 
 > We send in `undefined` when we first call `g.send()`. The reason is that **(1)** `g.next()` is actually
 > implemented as `g.send undefined`, and **(2)** to initialize a generator, you must not send anything but

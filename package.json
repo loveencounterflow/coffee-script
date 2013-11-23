@@ -1,36 +1,49 @@
 {
-  "name":         "coffy-script",
-  "description":  "CoffeeScript with a Y.",
-  "keywords":     ["javascript", "language", "coffeescript", "coffyscript", "transpiler", "compiler", "asynchronous",
-                    "control flow", "yield", "generators"],
-  "author":       "loveencounterflow",
-  "version":      "11.6.3",
-  "licenses":     [{
-    "type":       "MIT",
-    "url":        "https://raw.github.com/jashkenas/coffee-script/master/LICENSE"
-  }],
-  "engines":      {
-    "node":       "~0.11.2"
+  "name": "coffy-script",
+  "description": "CoffeeScript with a Y.",
+  "keywords": [
+    "javascript",
+    "language",
+    "coffeescript",
+    "coffyscript",
+    "transpiler",
+    "compiler",
+    "asynchronous",
+    "control flow",
+    "yield",
+    "generators"
+  ],
+  "author": "loveencounterflow",
+  "version": "11.6.3",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://raw.github.com/jashkenas/coffee-script/master/LICENSE"
+    }
+  ],
+  "engines": {
+    "node": "~0.11.2"
   },
-  "directories" : {
-    "lib" : "./lib/coffee-script"
+  "directories": {
+    "lib": "./lib/coffee-script"
   },
-  "main" : "./lib/coffee-script/coffee-script",
-  "bin":          {
-    "coffee":     "./bin/coffee",
-    "cake":       "./bin/cake"
+  "main": "./lib/coffee-script/coffee-script",
+  "bin": {
+    "coffee": "./bin/coffee",
+    "cake": "./bin/cake"
   },
   "scripts": {
     "test": "node ./bin/cake test"
   },
-  "homepage":     "https://github.com/loveencounterflow/coffy-script",
-  "bugs":         "https://github.com/loveencounterflow/coffy-script/issues",
-  "repository":   {
+  "homepage": "https://github.com/loveencounterflow/coffy-script",
+  "bugs": "https://github.com/loveencounterflow/coffy-script/issues",
+  "repository": {
     "type": "git",
     "url": "git://github.com/loveencounterflow/coffy-script.git"
   },
   "devDependencies": {
-    "uglify-js":  "~2.2",
-    "jison":      ">=0.2.0"
+    "uglify-js": "~2.2",
+    "jison": ">=0.2.0",
+    "asynct": "~1.1.0"
   }
 }
