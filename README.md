@@ -11,6 +11,11 @@ version of CoffyScript (namely, no more `->*`, only `->`; no more `g.send`, only
 Given that the community seems quite eager to
 get `yield` into CS, it is to be expected that CoffyScript will soon become useless—which is a good thing.
 
+Also note that with this edition of the CoffeeScript library, the automatic registration of `.coffee` filename
+extensions has been removed, meaning that you should always compile your CoffyScript and CoffeeScript
+files to JavaScript before executing them—running a single file with `coffee xy.coffee` will still work,
+but implicitly `require`ing it as `require ./xy.coffee` from another module will fail. I like to put all my
+CS sources into a `src/` folder and compile them into `lib/`; having done that, `require ./xy` will work.
 
 # CoffyScript
 
