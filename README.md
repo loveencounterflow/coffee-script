@@ -273,7 +273,7 @@ Here we have a generalized Fibonacci function that not only accepts two numbers 
 whether the consumer sent in a truthy value to indicate the sequence should start over. In essence, you
 can 'talk' to your generator, as it were, telling it what to do.
 
-<strike>strikethrough</strike>
+xxx <strike>strikethrough</strike> xxx
 
 > We send in `undefined` when we first call `g.send()`. The reason is that **(1)** `g.next()` is actually
 > implemented as `g.send undefined`, and **(2)** to initialize a generator, you must not send anything but
