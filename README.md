@@ -243,7 +243,7 @@ g       = walk_fibonacci 3, 1
 restart = undefined
 
 for idx in [ 0 ... 100 ]
-  # { value, done } = g.send restart # NB old version
+  <del>{ value, done } = g.send restart</del>
   { value, done } = g.next restart
   restart         = value > 100
   break if done
@@ -271,14 +271,16 @@ for idx in [ 0 ... 100 ]
 
 Here we have a generalized Fibonacci function that not only accepts two numbers as seed, it also checks
 whether the consumer sent in a truthy value to indicate the sequence should start over. In essence, you
-can 'talk' to your generator, as it were, telling it what to do.
+can 'talk' to your generator, as it were, telling it what to do. **Update** The `generator.send()` method
+has been removed in newer versions of NodeJS 0.11.x; you now use `generator.next value` to do that.
 
-xxx <s>strikethrough</s> <del>strikethrough</del> xxx
 
-> We send in `undefined` when we first call `g.send()`. The reason is that **(1)** `g.next()` is actually
+> <del>We send in `undefined` when we first call `g.send()`. The reason is that **(1)** `g.next()` is actually
 > implemented as `g.send undefined`, and **(2)** to initialize a generator, you must not send anything but
-> `undefined`, or you'll get an error.
+> `undefined`, or you'll get an error.</del>
 
+> The argument in the first call to `generator.next` must not be anything but `undefined` or you'll get
+> an error (you'd say `generator.next()` most of the time).
 
 ## How Not to Yield to Callback Hell: Serializing Control Flow
 
