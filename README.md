@@ -2,20 +2,19 @@
 
 ## ⚞ BREAKING NEWS ⚟
 
-CoffyScript has now been bumped to version 11.6.3 to reflect it has been
-updated to [the Nov 15, 2013 version of CoffeeScript master](https://github.com/jashkenas/coffee-script/commit/f047ba52b21805751d68c95f1a2c8aac18601b01),
-merged with [pull request #3240 from the same date](https://github.com/alubbe/coffee-script/commit/f51cbd71179c30dccab1806146c50b688fa2b528).
-The strange version number is just `'1' + '1.6.3'` as a way to indicate that **(1)** it's basically CS v1.6.3;
-**(2)** it's a little more than that version of CS; **(3)** it introduces breaking changes w.r.t. the previous
-version of CoffyScript (namely, no more `->*`, only `->`; no more `g.send`, only `g.next`).
-Given that the community seems quite eager to
-get `yield` into CS, it is to be expected that CoffyScript will soon become useless—which is a good thing.
+This repo is outdated as generator support has been added to CoffeeScript some time ago. The
+current (January, 2015) method to get `yield` working in your CS sources is to use `jashkenas/coffee-script`
+in place of `coffee-script` when installing the module:
 
-Also note that with this edition of the CoffeeScript library, the automatic registration of `.coffee` filename
-extensions has been removed, meaning that you should always compile your CoffyScript and CoffeeScript
-files to JavaScript before executing them—running a single file with `coffee xy.coffee` will still work,
-but implicitly `require`ing it as `require ./xy.coffee` from another module will fail. I like to put all my
-CS sources into a `src/` folder and compile them into `lib/`; having done that, `require ./xy` will work.
+```bash
+# thx to https://github.com/jashkenas/coffeescript/pull/3078#issuecomment-58415116
+npm install jashkenas/coffee-script
+```
+
+Additionally, you will have to avail yourself of a NodeJS version >= 0.11.x and use the
+`--harmony` command line switch; as an alternative, why not try [io.js](https://iojs.org/)?
+
+The below README has been left here for future reference.
 
 # CoffyScript
 
@@ -29,12 +28,12 @@ Python-like `yield` keyword in JavaScript. Yeah!
 
 That's really cool: **asynchronous programming and generators are a natural match**.
 
-Unfortunately, it's not looking as if [CoffeeScript](https://github.com/jashkenas/coffee-script) in its
+<strike>Unfortunately, it's not looking as if [CoffeeScript](https://github.com/jashkenas/coffee-script) in its
 official incarnation is
 [going to support `yield` any time soon](https://github.com/jashkenas/coffee-script/wiki/FAQ#unsupported-features),
 which is a shame since it has already landed in NodeJS. So i patched together this CoffeeScript fork that
 bends the parsing rules somewhat, with the result that this version supports 'starred function syntax' and
-the `yield` statement. See below for details.
+the `yield` statement. See below for details.</strike>
 
 ## TL;DR
 
